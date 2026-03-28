@@ -72,7 +72,6 @@ app.use(
 
 app.get('/health', (_req, res) => {
   res.status(200).json({ ok: true, service: 'novaboard-api', stravaEnabled });
-  res.status(200).json({ ok: true, service: 'novaboard-api' });
 });
 
 function getStravaAuthUrl() {
