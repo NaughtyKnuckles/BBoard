@@ -162,6 +162,27 @@
 
   /* ===================== FITNESS STYLES ===================== */
   .fit-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+  .fit-plan-grid { display: grid; grid-template-columns: repeat(7, minmax(120px,1fr)); gap: 10px; }
+  .fit-plan-day { background: var(--bg); border: 1px solid var(--soft); border-radius: 12px; padding: 12px; min-height: 120px; }
+  .fit-plan-day h4 { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .fit-plan-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .fit-plan-note { font-size: 12px; color: var(--text2); line-height: 1.35; }
+
+  .fit-guide-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+  .fit-table-wrap { overflow-x: auto; border: 1px solid var(--soft); border-radius: 12px; }
+  .fit-table { width: 100%; border-collapse: collapse; min-width: 640px; }
+  .fit-table th, .fit-table td { padding: 10px 12px; border-bottom: 1px solid var(--soft); font-size: 13px; text-align: left; vertical-align: top; }
+  .fit-table th { background: #f7f0e8; color: var(--accent2); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+  .fit-table tr:last-child td { border-bottom: none; }
+
+  .fit-nutri-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .fit-nutri-item { border: 1px solid var(--soft); border-radius: 12px; padding: 12px; background: var(--bg); }
+  .fit-nutri-tier { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 4px; font-weight: 700; }
+  .fit-nutri-title { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+  .fit-nutri-meta { font-size: 12px; color: var(--text2); margin-bottom: 4px; }
+  .fit-nutri-tip { font-size: 12px; color: var(--text2); line-height: 1.4; }
+  .fit-rule-box { margin-top: 12px; background: #f7f0e8; border: 1px dashed var(--accent); border-radius: 12px; padding: 12px; font-size: 13px; line-height: 1.45; color: var(--text2); }
   .fit-type-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 16px; }
   .fit-type-btn {
     padding: 10px 6px; border-radius: 10px; border: 1.5px solid var(--soft);
@@ -265,6 +286,8 @@
     .main { margin-left: 60px; padding: 24px 20px 60px; }
     .home-grid { grid-template-columns: 1fr; }
     .fit-type-grid { grid-template-columns: repeat(3, 1fr); }
+    .fit-plan-grid { grid-template-columns: repeat(2, 1fr); }
+    .fit-nutri-grid { grid-template-columns: 1fr; }
     .fit-week-grid { gap: 4px; }
     .fit-day-bubble { width: 32px; height: 32px; font-size: 13px; }
   }
@@ -446,6 +469,111 @@
       </div>
     </div>
 
+
+    <div class="card">
+      <div class="card-title">Weekly fitness section</div>
+      <div class="fit-plan-grid">
+        <div class="fit-plan-day"><h4>MON</h4><div class="fit-plan-title">Push</div><div class="fit-plan-note">25–30 min home workout</div></div>
+        <div class="fit-plan-day"><h4>TUE</h4><div class="fit-plan-title">Pull + Walk</div><div class="fit-plan-note">25 min workout + 5 km walk</div></div>
+        <div class="fit-plan-day"><h4>WED</h4><div class="fit-plan-title">Legs + Core</div><div class="fit-plan-note">30–35 min home workout</div></div>
+        <div class="fit-plan-day"><h4>THU</h4><div class="fit-plan-title">Walk only</div><div class="fit-plan-note">5 km walk. Full muscle rest.</div></div>
+        <div class="fit-plan-day"><h4>FRI</h4><div class="fit-plan-title">Push</div><div class="fit-plan-note">25–30 min home workout</div></div>
+        <div class="fit-plan-day"><h4>SAT</h4><div class="fit-plan-title">Legs + Walk</div><div class="fit-plan-note">Workout + optional walk</div></div>
+        <div class="fit-plan-day"><h4>SUN</h4><div class="fit-plan-title">Full rest</div><div class="fit-plan-note">Sleep, eat, recover</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Home workout templates</div>
+      <div class="fit-guide-grid">
+        <div>
+          <p class="fit-section-label">Push template</p>
+          <div class="fit-table-wrap">
+            <table class="fit-table">
+              <thead><tr><th>Exercise</th><th>Sets × Reps</th><th>What it trains</th></tr></thead>
+              <tbody>
+                <tr><td>Standard push-up<br><small>Hands shoulder-width, chest nearly touches floor</small></td><td>3 × max reps<br><small>Stop 1–2 short of failure</small></td><td>Chest, shoulders, triceps</td></tr>
+                <tr><td>Diamond push-up<br><small>Hands form a triangle under chest</small></td><td>3 × 6–10</td><td>Inner chest, triceps</td></tr>
+                <tr><td>Wide push-up<br><small>Hands wider than shoulders</small></td><td>3 × 8–12</td><td>Outer chest, man boob area</td></tr>
+                <tr><td>Pike push-up<br><small>Hips high, head between arms, lower head to floor</small></td><td>3 × 6–10</td><td>Shoulders (caps = V-taper)</td></tr>
+                <tr><td>Tricep dip (chair/bed edge)<br><small>Hands on edge, lower body between arms</small></td><td>3 × 10–12</td><td>Triceps — back of arm</td></tr>
+                <tr><td>Plank</td><td>3 × 30–45s</td><td>Core stability, posture</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div>
+          <p class="fit-section-label">Pull template</p>
+          <div class="fit-table-wrap">
+            <table class="fit-table">
+              <thead><tr><th>Exercise</th><th>Sets × Reps</th><th>What it trains</th></tr></thead>
+              <tbody>
+                <tr><td>Table row / underhand row<br><small>Lie under a sturdy table and pull chest to edge</small></td><td>3 × 8–12</td><td>Back, biceps — best home pull move</td></tr>
+                <tr><td>Backpack bicep curl<br><small>Use books/water bottles for load</small></td><td>3 × 10–15</td><td>Biceps — arm size</td></tr>
+                <tr><td>Hammer curl (backpack or bag)<br><small>Neutral grip, curl sideways</small></td><td>3 × 10–12</td><td>Forearms + brachialis</td></tr>
+                <tr><td>Wrist curls (any weight)<br><small>Forearm on thigh, curl wrist up and down</small></td><td>3 × 20</td><td>Forearm thickness</td></tr>
+                <tr><td>Superman hold<br><small>Lift arms/legs off floor and hold 2s</small></td><td>3 × 12</td><td>Lower back, posture</td></tr>
+                <tr><td>Reverse snow angel (floor)<br><small>Arms sweep side to overhead while lifted</small></td><td>3 × 10</td><td>Rear delts — posture correction</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div>
+          <p class="fit-section-label">Legs + core template</p>
+          <div class="fit-table-wrap">
+            <table class="fit-table">
+              <thead><tr><th>Exercise</th><th>Sets × Reps</th><th>What it trains</th></tr></thead>
+              <tbody>
+                <tr><td>Bodyweight squat<br><small>Feet shoulder-width, sit back and down</small></td><td>4 × 20</td><td>Quads, glutes, metabolism</td></tr>
+                <tr><td>Reverse lunge<br><small>Step backward, knee nearly touches floor</small></td><td>3 × 12 each leg</td><td>Quads, glutes, balance</td></tr>
+                <tr><td>Glute bridge<br><small>Drive hips up, squeeze at top for 1s</small></td><td>3 × 20</td><td>Glutes, hamstrings, lower back</td></tr>
+                <tr><td>Wall sit<br><small>Back flat on wall, thighs parallel</small></td><td>3 × 30–60s</td><td>Quad endurance + burn</td></tr>
+                <tr><td>Calf raise (step edge or flat)</td><td>4 × 25</td><td>Calf shape</td></tr>
+                <tr><td>Leg raises (floor)</td><td>3 × 12</td><td>Lower abs — belly fat area</td></tr>
+                <tr><td>Bicycle crunch</td><td>3 × 20</td><td>Obliques, side definition</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fit-two-col">
+      <div class="card">
+        <div class="card-title">How to progress</div>
+        <div class="fit-table-wrap">
+          <table class="fit-table" style="min-width:unset;">
+            <thead><tr><th>Week</th><th>How to make it harder</th><th>Goal</th></tr></thead>
+            <tbody>
+              <tr><td>1–2</td><td>Learn movements. Focus on feeling the right muscles.</td><td>Show up every session</td></tr>
+              <tr><td>3–4</td><td>Add 1–2 reps to each set when all sets feel comfortable.</td><td>Hit all planned reps cleanly</td></tr>
+              <tr><td>5–8</td><td>Add backpack weight to squats, rows, curls (start 2–3 kg).</td><td>Each set should feel challenging</td></tr>
+              <tr><td>9–12</td><td>Slow tempo: 3s down, 1s hold, 1s up.</td><td>Controlled movement + mind-muscle connection</td></tr>
+              <tr><td>12+</td><td>Advance variations: archer/decline push-ups, single-leg work.</td><td>Continuous challenge</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="fit-rule-box"><strong>Golden rule:</strong> exercises never get easier — you get better at making them harder with slower tempo, loaded backpack, shorter rest, and tougher variations.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Protein-first nutrition guide</div>
+        <div class="fit-nutri-grid">
+          <div class="fit-nutri-item"><div class="fit-nutri-tier">Elite</div><div class="fit-nutri-title">Whole egg</div><div class="fit-nutri-meta">6g protein each · ~70 cal · complete amino acids</div><div class="fit-nutri-tip">3 eggs = 18g protein. Eat 3–5 daily as base.</div></div>
+          <div class="fit-nutri-item"><div class="fit-nutri-tier">Elite</div><div class="fit-nutri-title">Canned sardines / mackerel</div><div class="fit-nutri-meta">~20g protein per small can · omega-3 rich · cheap</div><div class="fit-nutri-tip">Underrated fitness food. Eat daily if possible.</div></div>
+          <div class="fit-nutri-item"><div class="fit-nutri-tier">Elite</div><div class="fit-nutri-title">Fresh fish (tilapia, bangus, etc.)</div><div class="fit-nutri-meta">22–25g protein per 100g · low fat</div><div class="fit-nutri-tip">Ask for bigger fish portions every meal.</div></div>
+          <div class="fit-nutri-item"><div class="fit-nutri-tier">Good</div><div class="fit-nutri-title">Canned tuna / corned beef</div><div class="fit-nutri-meta">Tuna: 22g/can · Corned beef: 12–15g/serving</div><div class="fit-nutri-tip">Tuna is excellent. Corned beef is okay in smaller amounts.</div></div>
+          <div class="fit-nutri-item"><div class="fit-nutri-tier">Neutral</div><div class="fit-nutri-title">Instant noodles</div><div class="fit-nutri-meta">~8g protein · high sodium · mostly carbs</div><div class="fit-nutri-tip">Always add 2 eggs + canned fish.</div></div>
+          <div class="fit-nutri-item"><div class="fit-nutri-tier">Use wisely</div><div class="fit-nutri-title">Processed / other canned</div><div class="fit-nutri-meta">Varies · often high sodium + preservatives</div><div class="fit-nutri-tip">Eat with eggs or fish on the side.</div></div>
+        </div>
+        <div class="fit-rule-box">
+          <strong>Your nutrition rule:</strong> Protein first, always. Target <strong>90–110g protein/day</strong> (3–4 eggs + 1–2 cans fish + regular meals).<br>
+          Drink water, not juice/soda (2–3 large glasses per meal). Use only half of noodle seasoning to reduce sodium and puffiness.
+        </div>
+      </div>
+    </div>
     <!-- Log + Walk side by side -->
     <div class="fit-two-col">
 
