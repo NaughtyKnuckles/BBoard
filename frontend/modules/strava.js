@@ -14,9 +14,16 @@ function fmtDate(dateIso) {
 }
 
 async function fetchJson(url, options) {
+  const authToken = window.localStorage.getItem('NOVABOARD_AUTH_TOKEN')?.trim();
+  const headers = new Headers(options?.headers || {});
+  if (authToken) {
+    headers.set('Authorization', `Bearer ${authToken}`);
+  }
+
   const res = await fetch(url, {
     credentials: 'include',
-    ...options
+    ...options,
+    headers
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data?.error || 'Request failed');
@@ -63,6 +70,14 @@ function ensureApiBaseConfigured() {
 }
 
 export async function initStravaModule() {
+  const url = new URL(window.location.href);
+  const authTokenParam = url.searchParams.get('auth_token');
+  if (authTokenParam) {
+    window.localStorage.setItem('NOVABOARD_AUTH_TOKEN', authTokenParam);
+    url.searchParams.delete('auth_token');
+    window.history.replaceState({}, '', url.toString());
+  }
+
   const connectBtn = document.getElementById('strava-connect-btn');
   const refreshBtn = document.getElementById('strava-refresh-btn');
   const disconnectBtn = document.getElementById('strava-disconnect-btn');
@@ -79,6 +94,7 @@ export async function initStravaModule() {
 
   disconnectBtn?.addEventListener('click', async () => {
     await fetchJson(apiUrl('/auth/strava/logout'), { method: 'POST' });
+    window.localStorage.removeItem('NOVABOARD_AUTH_TOKEN');
     notify('Disconnected from Strava.');
     await loadStravaActivities();
   });

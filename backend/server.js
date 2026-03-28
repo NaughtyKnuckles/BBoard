@@ -1,12 +1,12 @@
 import express from 'express';
 import session from 'express-session';
 import dotenv from 'dotenv';
-import cors from 'cors';
-import fetch from 'node-fetch'; // ensure node-fetch is installed if using node v18 or earlier
+import { randomUUID } from 'node:crypto';
 
 dotenv.config();
 
 const app = express();
+const authTokenStore = new Map();
 
 const {
   PORT = 3000,
@@ -159,7 +159,11 @@ function requireStrava(req, res, next) {
 }
 
 async function ensureValidAccessToken(req, res, next) {
-  const token = req.session?.stravaToken;
+  const authHeader = req.headers.authorization || '';
+  const bearerToken = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
+  const tokenRecord = bearerToken ? authTokenStore.get(bearerToken) : null;
+
+  const token = tokenRecord?.stravaToken || req.session?.stravaToken;
   if (!token) {
     return res.status(401).json({ error: 'Not authenticated with Strava.' });
   }
@@ -168,12 +172,21 @@ async function ensureValidAccessToken(req, res, next) {
   if (token.expires_at <= now + 60) {
     try {
       const refreshed = await refreshAccessToken(token.refresh_token);
-      req.session.stravaToken = refreshed;
+      if (tokenRecord) {
+        tokenRecord.stravaToken = refreshed;
+        authTokenStore.set(bearerToken, tokenRecord);
+      } else {
+        req.session.stravaToken = refreshed;
+      }
     } catch (error) {
       console.error(error.message);
       return res.status(401).json({ error: 'Unable to refresh Strava token. Reconnect account.' });
     }
   }
+
+  req.stravaToken = tokenRecord?.stravaToken || req.session.stravaToken;
+  req.stravaAthlete = tokenRecord?.stravaAthlete || req.session?.stravaAthlete || null;
+  req.clientAuthToken = bearerToken || null;
 
   return next();
 }
@@ -197,13 +210,21 @@ app.get('/auth/strava/callback', requireStrava, async (req, res) => {
     const tokenData = await exchangeCodeForToken(code);
     req.session.stravaToken = tokenData;
     req.session.stravaAthlete = tokenData.athlete;
+    const clientAuthToken = randomUUID();
+    authTokenStore.set(clientAuthToken, {
+      stravaToken: tokenData,
+      stravaAthlete: tokenData.athlete
+    });
     return req.session.save((saveError) => {
       if (saveError) {
         console.error('Failed to persist Strava session:', saveError.message);
         return res.status(500).send('Failed to persist Strava session.');
       }
 
-      return res.redirect(`${FRONTEND_URL || '/'}?strava=connected`);
+      const redirectTarget = new URL(FRONTEND_URL || '/', `${req.protocol}://${req.get('host')}`);
+      redirectTarget.searchParams.set('strava', 'connected');
+      redirectTarget.searchParams.set('auth_token', clientAuthToken);
+      return res.redirect(redirectTarget.toString());
     });
   } catch (exchangeError) {
     console.error(exchangeError.message);
@@ -212,11 +233,14 @@ app.get('/auth/strava/callback', requireStrava, async (req, res) => {
 });
 
 app.get('/api/strava/status', (req, res) => {
-  const connected = !!req.session?.stravaToken;
+  const authHeader = req.headers.authorization || '';
+  const bearerToken = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
+  const tokenRecord = bearerToken ? authTokenStore.get(bearerToken) : null;
+  const connected = !!(tokenRecord?.stravaToken || req.session?.stravaToken);
   res.json({
     connected,
     enabled: stravaEnabled,
-    athlete: req.session?.stravaAthlete || null,
+    athlete: tokenRecord?.stravaAthlete || req.session?.stravaAthlete || null,
     redirect_uri: stravaEnabled ? getRedirectUri(req) : null,
     cookie_mode: {
       secure: NODE_ENV === 'production' || isPublicHttpsUrl(FRONTEND_URL),
@@ -227,7 +251,7 @@ app.get('/api/strava/status', (req, res) => {
 
 app.get('/api/strava/activities', requireStrava, ensureValidAccessToken, async (req, res) => {
   const perPage = Number(req.query.per_page || 10);
-  const token = req.session.stravaToken;
+  const token = req.stravaToken;
 
   try {
     const response = await fetch(`https://www.strava.com/api/v3/athlete/activities?per_page=${perPage}`, {
@@ -258,6 +282,11 @@ app.get('/api/strava/activities', requireStrava, ensureValidAccessToken, async (
 });
 
 app.post('/auth/strava/logout', (req, res) => {
+  const authHeader = req.headers.authorization || '';
+  const bearerToken = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
+  if (bearerToken) {
+    authTokenStore.delete(bearerToken);
+  }
   req.session.destroy((error) => {
     if (error) {
       console.error('Failed to destroy session:', error.message);
