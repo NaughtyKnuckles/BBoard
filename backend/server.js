@@ -1,6 +1,8 @@
 import express from 'express';
 import session from 'express-session';
 import dotenv from 'dotenv';
+import cors from 'cors';
+import fetch from 'node-fetch'; // ensure node-fetch is installed if using node v18 or earlier
 
 dotenv.config();
 
