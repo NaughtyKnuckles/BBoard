@@ -19,22 +19,28 @@
     --red: #c44a3a;
     --shadow: 0 2px 20px rgba(100,60,30,0.10);
     --radius: 16px;
+    --fit-push: #e8edf5;
+    --fit-push-text: #3a5080;
+    --fit-pull: #ede8f5;
+    --fit-pull-text: #5a3a80;
+    --fit-legs: #e8f0e8;
+    --fit-legs-text: #3a7040;
+    --fit-walk: #f5ede0;
+    --fit-walk-text: #8a5a1e;
+    --fit-rest: #f0ece8;
+    --fit-rest-text: #8a7a6e;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
   /* SIDEBAR */
   .sidebar {
     position: fixed; left: 0; top: 0; bottom: 0;
     width: 230px; background: var(--paper);
     border-right: 1.5px solid var(--soft);
     display: flex; flex-direction: column;
-    padding: 32px 0 24px;
-    z-index: 100;
+    padding: 32px 0 24px; z-index: 100;
+    overflow-y: auto;
   }
   .sidebar-title {
     font-family: 'Playfair Display', serif;
@@ -50,25 +56,15 @@
     padding: 11px 24px; cursor: pointer;
     font-size: 14px; font-weight: 400; color: var(--text2);
     border-left: 3px solid transparent;
-    transition: all 0.18s;
-    user-select: none;
+    transition: all 0.18s; user-select: none;
   }
   .nav-item:hover { background: var(--soft); color: var(--accent); }
   .nav-item.active { border-left-color: var(--accent); background: #f5ede5; color: var(--accent); font-weight: 500; }
   .nav-item .icon { font-size: 17px; width: 22px; text-align: center; }
-  .nav-add {
-    margin: 12px 20px 0;
-    padding: 9px 14px;
-    border: 1.5px dashed var(--muted);
-    border-radius: 10px;
-    color: var(--muted);
-    cursor: pointer;
-    font-size: 13px;
-    text-align: center;
-    transition: all 0.18s;
-  }
+  .nav-add { margin: 12px 20px 0; padding: 9px 14px; border: 1.5px dashed var(--muted); border-radius: 10px; color: var(--muted); cursor: pointer; font-size: 13px; text-align: center; transition: all 0.18s; }
   .nav-add:hover { border-color: var(--accent); color: var(--accent); background: #f5ede5; }
-  .sidebar-footer { margin-top: auto; padding: 16px 24px 0; font-size: 12px; color: var(--muted); font-family: 'Caveat', cursive; font-size: 15px; }
+  .sidebar-footer { margin-top: auto; padding: 16px 24px 0; color: var(--muted); font-family: 'Caveat', cursive; font-size: 15px; }
+
   /* MAIN */
   .main { margin-left: 230px; padding: 44px 48px 60px; min-height: 100vh; }
   .page { display: none; }
@@ -78,30 +74,22 @@
   .page-header h1 { font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 700; color: var(--text); line-height: 1.1; }
   .page-header h1 em { font-style: italic; color: var(--accent); }
   .page-header p { color: var(--muted); font-size: 14px; margin-top: 6px; }
-  /* DATE WIDGET */
-  .date-bar { display: flex; align-items: center; gap: 18px; margin-bottom: 36px; }
-  .date-chip { background: var(--paper); border: 1px solid var(--soft); border-radius: 40px; padding: 8px 18px; font-size: 13px; color: var(--text2); display: flex; align-items: center; gap: 7px; }
-  .date-chip .day { font-family: 'Caveat', cursive; font-size: 18px; color: var(--accent); }
+
   /* CARD */
   .card { background: var(--paper); border-radius: var(--radius); border: 1px solid var(--soft); box-shadow: var(--shadow); padding: 24px 28px; margin-bottom: 20px; }
   .card-title { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; color: var(--accent2); margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
+
   /* INPUT ROW */
-  .input-row { display: flex; gap: 10px; margin-bottom: 16px; }
+  .input-row { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
   .input-row input, .input-row select {
-    flex: 1; padding: 10px 14px;
+    flex: 1; padding: 10px 14px; min-width: 0;
     border: 1.5px solid var(--soft); border-radius: 10px;
     font-family: 'DM Sans', sans-serif; font-size: 14px;
     background: var(--bg); color: var(--text);
     outline: none; transition: border 0.15s;
   }
   .input-row input:focus, .input-row select:focus { border-color: var(--accent); }
-  .btn {
-    padding: 10px 18px; border: none; border-radius: 10px;
-    background: var(--accent); color: #fff;
-    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500;
-    cursor: pointer; transition: background 0.15s, transform 0.1s;
-    white-space: nowrap;
-  }
+  .btn { padding: 10px 18px; border: none; border-radius: 10px; background: var(--accent); color: #fff; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; transition: background 0.15s, transform 0.1s; white-space: nowrap; }
   .btn:hover { background: var(--accent2); }
   .btn:active { transform: scale(0.97); }
   .btn-sm { padding: 5px 12px; font-size: 12px; border-radius: 7px; }
@@ -109,6 +97,7 @@
   .btn-ghost:hover { background: var(--soft); color: var(--text); }
   .btn-danger { background: transparent; color: var(--red); border: none; font-size: 16px; padding: 2px 6px; cursor: pointer; opacity: 0.5; transition: opacity 0.15s; }
   .btn-danger:hover { opacity: 1; }
+
   /* TODO */
   .todo-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--soft); }
   .todo-item:last-child { border-bottom: none; }
@@ -121,6 +110,7 @@
   .todo-tag.work { background: #e8f0e8; color: #4a7a4e; }
   .todo-tag.personal { background: #f0e8e8; color: #8a4a4e; }
   .todo-tag.urgent { background: #f5e8e0; color: #c4703a; }
+
   /* GOALS */
   .goal-item { padding: 14px 0; border-bottom: 1px solid var(--soft); }
   .goal-item:last-child { border-bottom: none; }
@@ -134,7 +124,8 @@
   .progress-controls { display: flex; gap: 5px; align-items: center; }
   .prog-btn { background: var(--soft); border: none; color: var(--text2); width: 24px; height: 24px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; transition: background 0.12s; }
   .prog-btn:hover { background: var(--accent); color: white; }
-  /* WANTS / WISHLIST */
+
+  /* WANTS */
   .want-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--soft); }
   .want-item:last-child { border-bottom: none; }
   .want-emoji { font-size: 20px; }
@@ -145,8 +136,8 @@
   .priority-dot.high { background: #c44a3a; }
   .priority-dot.medium { background: #c4903a; }
   .priority-dot.low { background: #5a8a5e; }
+
   /* SCHEDULE */
-  .schedule-grid { display: grid; gap: 10px; }
   .schedule-slot { display: flex; align-items: flex-start; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--soft); }
   .schedule-slot:last-child { border-bottom: none; }
   .slot-time { font-family: 'Caveat', cursive; font-size: 17px; color: var(--accent); min-width: 68px; padding-top: 1px; }
@@ -158,6 +149,7 @@
   .slot-type.work { background: #e8edf5; color: #4a5a8a; }
   .slot-type.leisure { background: #f5e8e0; color: #c4703a; }
   .slot-type.meal { background: #f5f0e0; color: #8a7a3a; }
+
   /* HOME */
   .home-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
   .home-card { background: var(--paper); border: 1px solid var(--soft); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow); cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; position: relative; overflow: hidden; }
@@ -167,11 +159,87 @@
   .home-card-title { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; margin-bottom: 5px; }
   .home-card-desc { font-size: 13px; color: var(--muted); }
   .home-card-count { position: absolute; top: 16px; right: 16px; background: var(--soft); color: var(--muted); font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
-  /* CUSTOM SECTION */
-  .custom-section-note { font-size: 13px; color: var(--muted); font-style: italic; margin-bottom: 16px; }
+
+  /* ===================== FITNESS STYLES ===================== */
+  .fit-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .fit-type-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 16px; }
+  .fit-type-btn {
+    padding: 10px 6px; border-radius: 10px; border: 1.5px solid var(--soft);
+    background: var(--bg); cursor: pointer; text-align: center;
+    font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--text2);
+    transition: all 0.15s; line-height: 1.4;
+  }
+  .fit-type-btn .ft-icon { font-size: 20px; display: block; margin-bottom: 3px; }
+  .fit-type-btn:hover { border-color: var(--accent); background: #f5ede5; }
+  .fit-type-btn.selected { border-color: var(--accent); background: #f5ede5; color: var(--accent); font-weight: 500; }
+  .fit-type-btn.selected-push  { border-color: #3a5080; background: var(--fit-push); color: var(--fit-push-text); font-weight: 500; }
+  .fit-type-btn.selected-pull  { border-color: #5a3a80; background: var(--fit-pull); color: var(--fit-pull-text); font-weight: 500; }
+  .fit-type-btn.selected-legs  { border-color: #3a7040; background: var(--fit-legs); color: var(--fit-legs-text); font-weight: 500; }
+  .fit-type-btn.selected-walk  { border-color: #8a5a1e; background: var(--fit-walk); color: var(--fit-walk-text); font-weight: 500; }
+  .fit-type-btn.selected-rest  { border-color: #8a7a6e; background: var(--fit-rest); color: var(--fit-rest-text); font-weight: 500; }
+
+  .fit-week-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-bottom: 6px; }
+  .fit-week-day { text-align: center; }
+  .fit-day-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 5px; }
+  .fit-day-bubble {
+    width: 38px; height: 38px; border-radius: 50%; margin: 0 auto;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; border: 1.5px solid var(--soft); background: var(--bg);
+    transition: all 0.15s;
+  }
+  .fit-day-bubble.today { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(196,112,58,0.15); }
+  .fit-day-bubble.has-push  { background: var(--fit-push);  border-color: #3a5080; }
+  .fit-day-bubble.has-pull  { background: var(--fit-pull);  border-color: #5a3a80; }
+  .fit-day-bubble.has-legs  { background: var(--fit-legs);  border-color: #3a7040; }
+  .fit-day-bubble.has-walk  { background: var(--fit-walk);  border-color: #8a5a1e; }
+  .fit-day-bubble.has-rest  { background: var(--fit-rest);  border-color: #8a7a6e; }
+  .fit-day-date { font-size: 10px; color: var(--muted); margin-top: 4px; font-family: 'Caveat', cursive; font-size: 13px; }
+
+  .fit-stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+  .fit-stat { background: var(--bg); border: 1px solid var(--soft); border-radius: 12px; padding: 14px 16px; text-align: center; }
+  .fit-stat-num { font-family: 'Caveat', cursive; font-size: 28px; color: var(--accent); line-height: 1; margin-bottom: 3px; }
+  .fit-stat-label { font-size: 11px; color: var(--muted); line-height: 1.3; }
+
+  .fit-log-item { display: flex; align-items: flex-start; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--soft); }
+  .fit-log-item:last-child { border-bottom: none; }
+  .fit-log-badge { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .fit-log-body { flex: 1; }
+  .fit-log-title { font-size: 14px; font-weight: 500; color: var(--text); }
+  .fit-log-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .fit-log-date { font-family: 'Caveat', cursive; font-size: 14px; color: var(--muted); }
+
+  .fit-tag { font-size: 11px; padding: 2px 9px; border-radius: 20px; font-weight: 500; display: inline-block; }
+  .fit-tag-push { background: var(--fit-push); color: var(--fit-push-text); }
+  .fit-tag-pull { background: var(--fit-pull); color: var(--fit-pull-text); }
+  .fit-tag-legs { background: var(--fit-legs); color: var(--fit-legs-text); }
+  .fit-tag-walk { background: var(--fit-walk); color: var(--fit-walk-text); }
+  .fit-tag-rest { background: var(--fit-rest); color: var(--fit-rest-text); }
+
+  .fit-pace-chip { font-size: 12px; background: var(--soft); color: var(--text2); border-radius: 20px; padding: 2px 9px; display: inline-block; margin-top: 3px; }
+
+  .fit-section-label { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 12px; font-weight: 500; }
+  .fit-divider { border: none; border-top: 1.5px dashed var(--soft); margin: 20px 0; }
+
+  .fit-streak-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .fit-streak-flame { font-size: 22px; }
+  .fit-streak-count { font-family: 'Caveat', cursive; font-size: 28px; color: var(--accent); line-height: 1; }
+  .fit-streak-label { font-size: 13px; color: var(--muted); }
+
+  .fit-today-done {
+    text-align: center; padding: 18px;
+    background: linear-gradient(135deg, #f5ede5, #faf6f1);
+    border-radius: 12px; border: 1px solid var(--soft);
+    margin-bottom: 12px;
+  }
+  .fit-today-done .done-icon { font-size: 32px; margin-bottom: 6px; }
+  .fit-today-done p { font-size: 13px; color: var(--muted); }
+  .fit-today-done strong { color: var(--accent); font-family: 'Playfair Display', serif; font-size: 15px; }
+  /* ====================================================== */
+
   .empty-state { text-align: center; padding: 40px 20px; color: var(--muted); }
   .empty-state .empty-icon { font-size: 40px; margin-bottom: 10px; }
   .empty-state p { font-size: 14px; }
+
   /* MODAL */
   .modal-overlay { position: fixed; inset: 0; background: rgba(46,31,20,0.35); z-index: 1000; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.18s; }
   .modal { background: var(--paper); border-radius: 20px; padding: 32px; width: 420px; max-width: 95vw; box-shadow: 0 10px 60px rgba(100,60,30,0.2); }
@@ -181,17 +249,24 @@
   .modal-field input, .modal-field select, .modal-field textarea { width: 100%; padding: 10px 14px; border: 1.5px solid var(--soft); border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 14px; background: var(--bg); color: var(--text); outline: none; }
   .modal-field input:focus, .modal-field select:focus, .modal-field textarea:focus { border-color: var(--accent); }
   .modal-btns { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
-  /* SCROLLBAR */
+
   ::-webkit-scrollbar { width: 5px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--soft); border-radius: 99px; }
-  /* RESPONSIVE */
+
+  @media (max-width: 960px) {
+    .fit-two-col { grid-template-columns: 1fr; }
+    .fit-stat-row { grid-template-columns: repeat(3, 1fr); }
+  }
   @media (max-width: 760px) {
     .sidebar { width: 60px; padding: 20px 0; }
     .sidebar-title, .nav-item span, .sidebar-footer, .nav-add { display: none; }
     .nav-item { justify-content: center; padding: 14px; }
     .main { margin-left: 60px; padding: 24px 20px 60px; }
     .home-grid { grid-template-columns: 1fr; }
+    .fit-type-grid { grid-template-columns: repeat(3, 1fr); }
+    .fit-week-grid { gap: 4px; }
+    .fit-day-bubble { width: 32px; height: 32px; font-size: 13px; }
   }
 </style>
 </head>
@@ -214,12 +289,16 @@
   <div class="nav-item" onclick="showPage('schedule')" id="nav-schedule">
     <span class="icon">🗓️</span><span>Schedule</span>
   </div>
+  <div class="nav-item" onclick="showPage('fitness')" id="nav-fitness">
+    <span class="icon">🏃</span><span>Fitness</span>
+  </div>
   <div id="custom-nav-items"></div>
   <div class="nav-add" onclick="openNewSectionModal()">+ New Section</div>
   <div class="sidebar-footer">made with ♡</div>
 </div>
 
 <div class="main">
+
   <!-- HOME -->
   <div class="page active" id="page-home">
     <div class="page-header">
@@ -250,6 +329,12 @@
         <div class="home-card-title">Schedule</div>
         <div class="home-card-desc">Your daily routine & events</div>
         <div class="home-card-count" id="hc-schedule">0</div>
+      </div>
+      <div class="home-card" onclick="showPage('fitness')">
+        <div class="home-card-icon">🏃</div>
+        <div class="home-card-title">Fitness</div>
+        <div class="home-card-desc">Workouts, walks & progress</div>
+        <div class="home-card-count" id="hc-fitness">—</div>
       </div>
     </div>
   </div>
@@ -335,6 +420,83 @@
     </div>
   </div>
 
+  <!-- ===================== FITNESS PAGE ===================== -->
+  <div class="page" id="page-fitness">
+    <div class="page-header" style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+      <div>
+        <h1>My <em>Fitness</em> 🏃</h1>
+        <p>Track workouts, walks, and your progress</p>
+      </div>
+      <div id="fit-streak-display"></div>
+    </div>
+
+    <!-- Stats row -->
+    <div class="fit-stat-row" id="fit-stats"></div>
+
+    <!-- This week -->
+    <div class="card">
+      <div class="card-title">This week</div>
+      <div class="fit-week-grid" id="fit-week-grid"></div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;font-size:12px;color:var(--muted);">
+        <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--fit-push);border:1px solid #3a5080;margin-right:4px;vertical-align:middle;"></span>Push</span>
+        <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--fit-pull);border:1px solid #5a3a80;margin-right:4px;vertical-align:middle;"></span>Pull</span>
+        <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--fit-legs);border:1px solid #3a7040;margin-right:4px;vertical-align:middle;"></span>Legs</span>
+        <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--fit-walk);border:1px solid #8a5a1e;margin-right:4px;vertical-align:middle;"></span>Walk</span>
+        <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--fit-rest);border:1px solid #8a7a6e;margin-right:4px;vertical-align:middle;"></span>Rest</span>
+      </div>
+    </div>
+
+    <!-- Log + Walk side by side -->
+    <div class="fit-two-col">
+
+      <!-- Log workout -->
+      <div class="card">
+        <div class="card-title">Log workout</div>
+        <div id="fit-today-status"></div>
+        <p class="fit-section-label">Choose type</p>
+        <div class="fit-type-grid">
+          <button class="fit-type-btn" id="ftbtn-push" onclick="selectFitType('push')"><span class="ft-icon">💪</span>Push</button>
+          <button class="fit-type-btn" id="ftbtn-pull" onclick="selectFitType('pull')"><span class="ft-icon">🏋️</span>Pull</button>
+          <button class="fit-type-btn" id="ftbtn-legs" onclick="selectFitType('legs')"><span class="ft-icon">🦵</span>Legs</button>
+          <button class="fit-type-btn" id="ftbtn-walk" onclick="selectFitType('walk')"><span class="ft-icon">🚶</span>Walk</button>
+          <button class="fit-type-btn" id="ftbtn-rest" onclick="selectFitType('rest')"><span class="ft-icon">😴</span>Rest</button>
+        </div>
+        <div class="input-row" style="margin-bottom:10px;">
+          <input type="text" id="fit-note" placeholder="Note (optional, e.g. '3×12 push-ups')"/>
+        </div>
+        <button class="btn" style="width:100%;" onclick="logWorkout()">Log workout</button>
+      </div>
+
+      <!-- Log walk -->
+      <div class="card">
+        <div class="card-title">Log walk</div>
+        <p class="fit-section-label">Walk details</p>
+        <div class="input-row">
+          <input type="number" id="walk-km" placeholder="Distance (km)" min="0" step="0.1" style="max-width:140px;"/>
+          <input type="number" id="walk-min" placeholder="Duration (min)" min="0" style="max-width:140px;"/>
+        </div>
+        <div class="input-row" style="margin-bottom:10px;">
+          <input type="text" id="walk-note" placeholder="Note (optional)"/>
+        </div>
+        <button class="btn" style="width:100%;" onclick="logWalk()">Log walk</button>
+        <hr class="fit-divider"/>
+        <p class="fit-section-label">Recent walks</p>
+        <div id="fit-walks-list"></div>
+      </div>
+
+    </div>
+
+    <!-- Workout history -->
+    <div class="card">
+      <div class="card-title">
+        Workout history
+        <button class="btn btn-sm btn-ghost" onclick="clearFitnessConfirm()">Clear all</button>
+      </div>
+      <div id="fit-log-list"></div>
+    </div>
+  </div>
+  <!-- ====================================================== -->
+
   <!-- CUSTOM SECTIONS (dynamic) -->
   <div id="custom-pages"></div>
 </div>
@@ -365,17 +527,29 @@ let state = {
   goals: [],
   wants: [],
   schedule: [],
-  customSections: [] // [{id, name, icon, items:[]}]
+  customSections: [],
+  fitness: {
+    workouts: [], // {id, date, type, note, timestamp}
+    walks: []     // {id, date, km, min, note, timestamp}
+  }
 };
+
+let selectedFitType = null;
 
 // ---- STORAGE ----
 async function saveState() {
-  try { await window.storage.set('dashboard_state', JSON.stringify(state)); } catch(e) {}
+  try { await window.storage.set('dashboard_state_v2', JSON.stringify(state)); } catch(e) {}
 }
 async function loadState() {
   try {
-    const r = await window.storage.get('dashboard_state');
-    if (r) { state = JSON.parse(r.value); }
+    const r = await window.storage.get('dashboard_state_v2');
+    if (r) {
+      const loaded = JSON.parse(r.value);
+      state = { ...state, ...loaded };
+      if (!state.fitness) state.fitness = { workouts: [], walks: [] };
+      if (!state.fitness.workouts) state.fitness.workouts = [];
+      if (!state.fitness.walks) state.fitness.walks = [];
+    }
   } catch(e) {}
 }
 
@@ -390,7 +564,26 @@ function showPage(id) {
   renderAll();
 }
 
-// ---- DATE ----
+// ---- DATE UTILS ----
+function todayStr() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function dateStr(ts) {
+  const d = new Date(ts);
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function friendlyDate(ts) {
+  const d = new Date(ts);
+  const t = todayStr();
+  const s = dateStr(ts);
+  if (s === t) return 'Today';
+  const yesterday = new Date(); yesterday.setDate(yesterday.getDate()-1);
+  const yStr = yesterday.getFullYear() + '-' + String(yesterday.getMonth()+1).padStart(2,'0') + '-' + String(yesterday.getDate()).padStart(2,'0');
+  if (s === yStr) return 'Yesterday';
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${months[d.getMonth()]} ${d.getDate()}`;
+}
 function setDate() {
   const now = new Date();
   const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
@@ -534,6 +727,226 @@ function renderSchedule() {
     </div>`).join('');
 }
 
+// ---- FITNESS ----
+const fitInfo = {
+  push: { icon: '💪', label: 'Push', cls: 'push' },
+  pull: { icon: '🏋️', label: 'Pull', cls: 'pull' },
+  legs: { icon: '🦵', label: 'Legs', cls: 'legs' },
+  walk: { icon: '🚶', label: 'Walk', cls: 'walk' },
+  rest: { icon: '😴', label: 'Rest', cls: 'rest' }
+};
+
+function selectFitType(type) {
+  selectedFitType = type;
+  document.querySelectorAll('.fit-type-btn').forEach(b => {
+    b.className = 'fit-type-btn';
+  });
+  const btn = document.getElementById('ftbtn-' + type);
+  if (btn) btn.className = 'fit-type-btn selected-' + type;
+}
+
+function logWorkout() {
+  if (!selectedFitType) { alert('Please choose a workout type first!'); return; }
+  const note = document.getElementById('fit-note').value.trim();
+  state.fitness.workouts.unshift({
+    id: Date.now(),
+    date: todayStr(),
+    type: selectedFitType,
+    note,
+    timestamp: Date.now()
+  });
+  document.getElementById('fit-note').value = '';
+  selectedFitType = null;
+  document.querySelectorAll('.fit-type-btn').forEach(b => b.className = 'fit-type-btn');
+  saveState();
+  renderFitness();
+  updateHomeCounts();
+}
+
+function logWalk() {
+  const km = parseFloat(document.getElementById('walk-km').value);
+  const min = parseFloat(document.getElementById('walk-min').value);
+  const note = document.getElementById('walk-note').value.trim();
+  if (!km || km <= 0) { alert('Please enter a distance!'); return; }
+  state.fitness.walks.unshift({
+    id: Date.now(),
+    date: todayStr(),
+    km: Math.round(km * 10) / 10,
+    min: min || null,
+    note,
+    timestamp: Date.now()
+  });
+  document.getElementById('walk-km').value = '';
+  document.getElementById('walk-min').value = '';
+  document.getElementById('walk-note').value = '';
+  saveState();
+  renderFitness();
+  updateHomeCounts();
+}
+
+function deleteWorkout(id) {
+  state.fitness.workouts = state.fitness.workouts.filter(x => x.id !== id);
+  saveState(); renderFitness(); updateHomeCounts();
+}
+function deleteWalkLog(id) {
+  state.fitness.walks = state.fitness.walks.filter(x => x.id !== id);
+  saveState(); renderFitness(); updateHomeCounts();
+}
+
+function clearFitnessConfirm() {
+  if (confirm('Clear all fitness history? This cannot be undone.')) {
+    state.fitness.workouts = [];
+    state.fitness.walks = [];
+    saveState(); renderFitness(); updateHomeCounts();
+  }
+}
+
+function calcPace(km, min) {
+  if (!km || !min || min <= 0) return null;
+  const paceMin = min / km;
+  const paceM = Math.floor(paceMin);
+  const paceS = Math.round((paceMin - paceM) * 60);
+  return `${paceM}:${String(paceS).padStart(2,'0')} min/km`;
+}
+
+function getStreak() {
+  if (!state.fitness.workouts.length && !state.fitness.walks.length) return 0;
+  // Collect all unique activity dates
+  const activeDates = new Set([
+    ...state.fitness.workouts.map(w => w.date),
+    ...state.fitness.walks.map(w => w.date)
+  ]);
+  let streak = 0;
+  const d = new Date();
+  // Check if today is active; if not, start from yesterday
+  const t = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  if (!activeDates.has(t)) d.setDate(d.getDate() - 1);
+  while (true) {
+    const key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    if (!activeDates.has(key)) break;
+    streak++;
+    d.setDate(d.getDate() - 1);
+  }
+  return streak;
+}
+
+function renderFitness() {
+  // Streak
+  const streak = getStreak();
+  const streakEl = document.getElementById('fit-streak-display');
+  if (streakEl) {
+    streakEl.innerHTML = `<div class="fit-streak-row">
+      <span class="fit-streak-flame">${streak > 0 ? '🔥' : '💤'}</span>
+      <span class="fit-streak-count">${streak}</span>
+      <span class="fit-streak-label">day streak</span>
+    </div>`;
+  }
+
+  // Stats
+  const statsEl = document.getElementById('fit-stats');
+  if (statsEl) {
+    const totalW = state.fitness.workouts.filter(w => w.type !== 'rest').length;
+    const totalKm = state.fitness.walks.reduce((s, w) => s + w.km, 0);
+    const thisWeekWorkouts = state.fitness.workouts.filter(w => {
+      const d = new Date(w.timestamp);
+      const now = new Date();
+      const weekAgo = new Date(now); weekAgo.setDate(now.getDate() - 6);
+      return d >= weekAgo && w.type !== 'rest';
+    }).length;
+    statsEl.innerHTML = `
+      <div class="fit-stat"><div class="fit-stat-num">${thisWeekWorkouts}</div><div class="fit-stat-label">workouts<br>this week</div></div>
+      <div class="fit-stat"><div class="fit-stat-num">${totalW}</div><div class="fit-stat-label">total<br>workouts</div></div>
+      <div class="fit-stat"><div class="fit-stat-num">${Math.round(totalKm * 10) / 10}</div><div class="fit-stat-label">total km<br>walked</div></div>
+    `;
+  }
+
+  // Week grid
+  const weekEl = document.getElementById('fit-week-grid');
+  if (weekEl) {
+    const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const today = new Date();
+    let html = '';
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(today.getDate() - i);
+      const key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+      const isToday = i === 0;
+      const workout = state.fitness.workouts.find(w => w.date === key);
+      const hasWalk = state.fitness.walks.some(w => w.date === key);
+      let bubbleClass = 'fit-day-bubble' + (isToday ? ' today' : '');
+      let icon = '';
+      if (workout) { bubbleClass += ' has-' + workout.type; icon = fitInfo[workout.type]?.icon || ''; }
+      else if (hasWalk) { bubbleClass += ' has-walk'; icon = '🚶'; }
+      html += `<div class="fit-week-day">
+        <div class="fit-day-label">${dayNames[d.getDay()]}</div>
+        <div class="${bubbleClass}">${icon}</div>
+        <div class="fit-day-date">${d.getDate()}</div>
+      </div>`;
+    }
+    weekEl.innerHTML = html;
+  }
+
+  // Today status
+  const statusEl = document.getElementById('fit-today-status');
+  if (statusEl) {
+    const t = todayStr();
+    const todayW = state.fitness.workouts.find(w => w.date === t);
+    const todayWalk = state.fitness.walks.find(w => w.date === t);
+    if (todayW || todayWalk) {
+      let msg = '';
+      if (todayW) msg += `<strong>${fitInfo[todayW.type]?.icon} ${fitInfo[todayW.type]?.label} logged</strong>`;
+      if (todayWalk) msg += (msg ? ' · ' : '') + `<strong>🚶 ${todayWalk.km} km walk logged</strong>`;
+      statusEl.innerHTML = `<div class="fit-today-done"><div class="done-icon">✅</div><p>${msg}</p><p style="margin-top:4px;font-size:12px;">You can still log another session today!</p></div>`;
+    } else {
+      statusEl.innerHTML = '';
+    }
+  }
+
+  // Workout log history
+  const logEl = document.getElementById('fit-log-list');
+  if (logEl) {
+    if (!state.fitness.workouts.length) {
+      logEl.innerHTML = `<div class="empty-state"><div class="empty-icon">💪</div><p>No workouts logged yet — start today!</p></div>`;
+    } else {
+      logEl.innerHTML = state.fitness.workouts.slice(0, 20).map(w => {
+        const info = fitInfo[w.type] || fitInfo.rest;
+        return `<div class="fit-log-item">
+          <span class="fit-log-badge">${info.icon}</span>
+          <div class="fit-log-body">
+            <div class="fit-log-title"><span class="fit-tag fit-tag-${info.cls}">${info.label}</span>${w.note ? `<span style="margin-left:8px;font-weight:400;font-size:13px;color:var(--text2);">${esc(w.note)}</span>` : ''}</div>
+            <div class="fit-log-meta">${friendlyDate(w.timestamp)}</div>
+          </div>
+          <button class="btn-danger" onclick="deleteWorkout(${w.id})">×</button>
+        </div>`;
+      }).join('');
+    }
+  }
+
+  // Walk log
+  const walkEl = document.getElementById('fit-walks-list');
+  if (walkEl) {
+    if (!state.fitness.walks.length) {
+      walkEl.innerHTML = `<div class="empty-state" style="padding:20px 0;"><div class="empty-icon" style="font-size:28px;">🚶</div><p>No walks logged yet</p></div>`;
+    } else {
+      walkEl.innerHTML = state.fitness.walks.slice(0, 8).map(w => {
+        const pace = calcPace(w.km, w.min);
+        return `<div class="fit-log-item">
+          <span class="fit-log-badge">🚶</span>
+          <div class="fit-log-body">
+            <div class="fit-log-title" style="font-weight:500;">${w.km} km${w.min ? ` · ${w.min} min` : ''}</div>
+            <div>
+              ${pace ? `<span class="fit-pace-chip">⏱ ${pace}</span>` : ''}
+              ${w.note ? `<div class="fit-log-meta" style="margin-top:3px;">${esc(w.note)}</div>` : ''}
+              <div class="fit-log-meta">${friendlyDate(w.timestamp)}</div>
+            </div>
+          </div>
+          <button class="btn-danger" onclick="deleteWalkLog(${w.id})">×</button>
+        </div>`;
+      }).join('');
+    }
+  }
+}
+
 // ---- CUSTOM SECTIONS ----
 function openNewSectionModal() {
   document.getElementById('new-section-name').value = '';
@@ -609,15 +1022,22 @@ function updateHomeCounts() {
   const gc = document.getElementById('hc-goals');
   const wc = document.getElementById('hc-wants');
   const sc = document.getElementById('hc-schedule');
+  const fc = document.getElementById('hc-fitness');
   if (tc) tc.textContent = state.todos.filter(t => !t.done).length + ' left';
   if (gc) gc.textContent = state.goals.length + ' goals';
   if (wc) wc.textContent = state.wants.length + ' items';
   if (sc) sc.textContent = state.schedule.length + ' events';
+  if (fc) {
+    const streak = getStreak();
+    const totalW = state.fitness.workouts.filter(w => w.type !== 'rest').length;
+    fc.textContent = streak > 0 ? '🔥 ' + streak + ' day streak' : totalW + ' workouts';
+  }
 }
 
 // ---- RENDER ALL ----
 function renderAll() {
   renderTodos(); renderGoals(); renderWants(); renderSchedule();
+  renderFitness();
   state.customSections.forEach(s => renderCustomSection(s.id));
   updateHomeCounts();
 }
