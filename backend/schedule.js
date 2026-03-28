@@ -1,4 +1,4 @@
-import { esc } from './ui.js';
+import { esc } from '../js/modules/ui.js';
 
 function sortSchedule(list) {
   list.sort((a, b) => a.time.localeCompare(b.time));

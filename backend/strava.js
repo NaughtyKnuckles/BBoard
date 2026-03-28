@@ -1,4 +1,4 @@
-import { notify } from './ui.js';
+import { notify } from '../js/modules/ui.js';
 
 function metersToKm(meters) {
   return (meters / 1000).toFixed(2);

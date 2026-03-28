@@ -1,5 +1,5 @@
 import { fetchFoodByBarcode, fetchFoodByName } from './api.js';
-import { esc, progressPercent, todayKey } from './ui.js';
+import { esc, progressPercent, todayKey } from '../js/modules/ui.js';
 
 function ensureTodayCollections(state) {
   const today = todayKey();

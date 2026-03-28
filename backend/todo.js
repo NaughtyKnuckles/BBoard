@@ -1,4 +1,4 @@
-import { esc, progressPercent } from './ui.js';
+import { esc, progressPercent } from '../js/modules/ui.js';
 
 export function initTodoModule({ state, save, notify, refreshAll }) {
   const form = document.getElementById('todo-form');
