@@ -9,6 +9,7 @@ This project is organized so frontend and backend deploy independently from the 
 ```txt
 .
 ├── frontend/                # Static UI deployed to Vercel
+├── frontend/                # Next.js app deployed to Vercel
 │   ├── package.json
 │   ├── vercel.json
 │   └── .env.example
@@ -34,6 +35,7 @@ cp backend/.env.example backend/.env
 `backend/.env` is optional for local startup now (the API will boot with a development fallback secret), but creating it is recommended.
 
 ### Option A (recommended): run both services together
+### Option A: run both services together
 
 ```bash
 npm install
@@ -57,6 +59,13 @@ npm run dev:frontend
 
 Frontend dev now uses a Node static server (`frontend/dev-server.js`), so no framework-specific setup is needed.
 
+### Option B: run separately
+
+```bash
+npm run dev:backend
+npm run dev:frontend
+```
+
 ## Environment variable strategy
 
 ### Frontend (Vercel)
@@ -66,6 +75,7 @@ Set in Vercel project settings:
 - `NEXT_PUBLIC_API_BASE_URL=https://<render-service>.onrender.com`
 
 For this static app, use this value in your frontend config/constants where API calls are made.
+Only variables prefixed with `NEXT_PUBLIC_` are available in browser-side code.
 
 ### Backend (Render)
 
@@ -100,6 +110,10 @@ Set in Render service settings:
    - Install Command: `npm install`
    - Build Command: `npm run build`
    - Output Directory: `.`
+4. Build settings:
+   - Install Command: `npm install`
+   - Build Command: `npm run build`
+   - Output: auto-detected for Next.js (`.next`).
 5. Add environment variables (at least `NEXT_PUBLIC_API_BASE_URL`).
 6. Deploy.
 7. Add custom domain in Vercel project settings if needed.
