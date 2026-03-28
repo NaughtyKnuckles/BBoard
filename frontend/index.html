@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="novaboard-api-base-url" content="" />
   <title>NovaBoard • Personal OS</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./css/styles.css" />
+  <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
   <div class="app-shell">
@@ -202,7 +203,14 @@
                 <h3>Strava Integration</h3>
                 <p>Connect your account to sync cycling and running data.</p>
             </div>
-            <button class="btn" id="connect-strava">Authorize Strava</button>
+            <p id="strava-status" class="tiny-meta">Checking Strava connection…</p>
+            <p id="strava-athlete" class="tiny-meta"></p>
+            <div class="strava-actions mt-10">
+              <button class="btn" id="strava-connect-btn" type="button">Authorize Strava</button>
+              <button class="btn secondary" id="strava-refresh-btn" type="button" hidden>Refresh</button>
+              <button class="btn danger" id="strava-disconnect-btn" type="button" hidden>Disconnect</button>
+            </div>
+            <div id="strava-activities-list" class="stack-list mt-16"></div>
         </div>
       </section>
 
@@ -210,6 +218,6 @@
   </div>
 
   <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
-  <script type="module" src="./js/main.js"></script>
+  <script type="module" src="./main.js"></script>
 </body>
 </html>
