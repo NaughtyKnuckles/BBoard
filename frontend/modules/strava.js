@@ -156,6 +156,11 @@ export async function loadStravaActivities() {
   } catch (error) {
     statusEl.textContent = 'Failed to load Strava activities.';
     listEl.innerHTML = '<div class="empty">Unable to fetch data right now.</div>';
-    notify(error.message || 'Strava request failed.');
+    const message = error?.message || 'Strava request failed.';
+    if (/failed to fetch/i.test(message)) {
+      notify('Failed to fetch Strava data. Check Render CORS allowlist for your Vercel domain.');
+      return;
+    }
+    notify(message);
   }
 }

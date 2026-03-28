@@ -29,16 +29,21 @@ if (!stravaEnabled) {
   console.warn('Strava OAuth is disabled. Set STRAVA_CLIENT_ID and STRAVA_CLIENT_SECRET to enable it.');
 }
 
+function normalizeOrigin(origin = '') {
+  return origin.trim().replace(/\/$/, '');
+}
+
 const allowedOrigins = [
   FRONTEND_URL,
   ...CORS_ALLOWED_ORIGINS.split(',').map((origin) => origin.trim())
 ]
+  .map(normalizeOrigin)
   .filter(Boolean);
 
 app.set('trust proxy', 1);
 app.use(express.json());
 app.use((req, res, next) => {
-  const origin = req.headers.origin;
+  const origin = normalizeOrigin(req.headers.origin || '');
 
   if (origin && (allowedOrigins.length === 0 || allowedOrigins.includes(origin))) {
     res.setHeader('Access-Control-Allow-Origin', origin);
