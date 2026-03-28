@@ -78,7 +78,7 @@ Set in Render service settings:
 - `SESSION_SECRET=<long-random-secret>`
 - `STRAVA_CLIENT_ID=<value>`
 - `STRAVA_CLIENT_SECRET=<value>`
-- `STRAVA_REDIRECT_URI=https://<render-service>.onrender.com/auth/strava/callback`
+- `STRAVA_REDIRECT_URI=https://<render-service>.onrender.com/auth/strava/callback` (optional override; by default backend auto-uses current backend host callback URL)
 
 ## CORS/session notes for split hosting
 
@@ -131,4 +131,4 @@ Set in Render service settings:
 - Wrong project root selected in Vercel/Render.
 - Missing environment variables.
 - Calling Render from frontend without `credentials: 'include'` when session auth is required.
-- Strava callback URL not matching deployed backend URL.
+- Strava callback URL/domain not allowed in your Strava app settings.

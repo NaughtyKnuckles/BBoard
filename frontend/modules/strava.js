@@ -110,7 +110,8 @@ export async function loadStravaActivities() {
     const status = await fetchJson(apiUrl('/api/strava/status'));
 
     if (!status.connected) {
-      statusEl.textContent = 'Not connected. Connect your Strava account to load activities.';
+      const redirectHint = status.redirect_uri ? ` Callback: ${status.redirect_uri}` : '';
+      statusEl.textContent = `Not connected. Connect your Strava account to load activities.${redirectHint}`;
       athleteEl.textContent = '';
       listEl.innerHTML = '<div class="empty">No Strava activity data yet.</div>';
       connectBtn.hidden = false;

@@ -18,7 +18,7 @@ const {
 } = process.env;
 
 const sessionSecret = SESSION_SECRET || (NODE_ENV !== 'production' ? 'dev-session-secret-change-me' : '');
-const stravaEnabled = Boolean(STRAVA_CLIENT_ID && STRAVA_CLIENT_SECRET && STRAVA_REDIRECT_URI);
+const stravaEnabled = Boolean(STRAVA_CLIENT_ID && STRAVA_CLIENT_SECRET);
 
 if (!sessionSecret) {
   console.error('Missing SESSION_SECRET in production. Check backend/.env configuration.');
@@ -26,7 +26,7 @@ if (!sessionSecret) {
 }
 
 if (!stravaEnabled) {
-  console.warn('Strava OAuth is disabled. Set STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET, and STRAVA_REDIRECT_URI to enable it.');
+  console.warn('Strava OAuth is disabled. Set STRAVA_CLIENT_ID and STRAVA_CLIENT_SECRET to enable it.');
 }
 
 const allowedOrigins = [
@@ -74,10 +74,16 @@ app.get('/health', (_req, res) => {
   res.status(200).json({ ok: true, service: 'novaboard-api', stravaEnabled });
 });
 
-function getStravaAuthUrl() {
+function getRedirectUri(req) {
+  if (STRAVA_REDIRECT_URI) return STRAVA_REDIRECT_URI;
+  return `${req.protocol}://${req.get('host')}/auth/strava/callback`;
+}
+
+function getStravaAuthUrl(req) {
+  const redirectUri = getRedirectUri(req);
   const params = new URLSearchParams({
     client_id: STRAVA_CLIENT_ID,
-    redirect_uri: STRAVA_REDIRECT_URI,
+    redirect_uri: redirectUri,
     response_type: 'code',
     approval_prompt: 'auto',
     scope: 'read,activity:read_all'
@@ -155,7 +161,7 @@ async function ensureValidAccessToken(req, res, next) {
 }
 
 app.get('/auth/strava', requireStrava, (req, res) => {
-  res.redirect(getStravaAuthUrl());
+  res.redirect(getStravaAuthUrl(req));
 });
 
 app.get('/auth/strava/callback', requireStrava, async (req, res) => {
@@ -182,7 +188,12 @@ app.get('/auth/strava/callback', requireStrava, async (req, res) => {
 
 app.get('/api/strava/status', (req, res) => {
   const connected = !!req.session?.stravaToken;
-  res.json({ connected, enabled: stravaEnabled, athlete: req.session?.stravaAthlete || null });
+  res.json({
+    connected,
+    enabled: stravaEnabled,
+    athlete: req.session?.stravaAthlete || null,
+    redirect_uri: stravaEnabled ? getRedirectUri(req) : null
+  });
 });
 
 app.get('/api/strava/activities', requireStrava, ensureValidAccessToken, async (req, res) => {
