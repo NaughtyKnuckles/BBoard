@@ -46,10 +46,10 @@ index 03c5ccfcbc4e459a5088f853908aec5bf8dd2b8f..1f361d37b45178c405f8746c44bc5935
 +.idea/
 diff --git a/DEPLOYMENT.md b/DEPLOYMENT.md
 new file mode 100644
-index 0000000000000000000000000000000000000000..96d46be62c2fb5b917f826bc64669c73c7317fe9
+index 0000000000000000000000000000000000000000..efcdd5c572149c315fd97261412672f41fe8d4fe
 --- /dev/null
 +++ b/DEPLOYMENT.md
-@@ -0,0 +1,138 @@
+@@ -0,0 +1,134 @@
 +# Deployment-Ready Monorepo Layout (Vercel + Render)
 +
 +> This repo currently uses a **static frontend** (HTML/CSS/JS). Vercel handles this natively.
@@ -107,11 +107,7 @@ index 0000000000000000000000000000000000000000..96d46be62c2fb5b917f826bc64669c73
 +npm run dev:frontend
 +```
 +
-+If you only want a quick frontend preview without npm dependencies:
-+```bash
-+python3 -m http.server 3001
-+```
-+Then open `http://localhost:3001/frontend/`.
++Frontend dev now uses a Node static server (`frontend/dev-server.js`), so no framework-specific setup is needed.
 +
 +## Environment variable strategy
 +
@@ -549,23 +545,79 @@ index 0000000000000000000000000000000000000000..cbd1bbaa74bb09dbb87935592854c027
 @@ -0,0 +1,2 @@
 +# Public API base URL for browser requests
 +NEXT_PUBLIC_API_BASE_URL=http://localhost:3000
+diff --git a/frontend/dev-server.js b/frontend/dev-server.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..721448ab65b0d35e55fc1f0e7f4a6085d1933713
+--- /dev/null
++++ b/frontend/dev-server.js
+@@ -0,0 +1,52 @@
++import { createServer } from 'node:http';
++import { createReadStream, existsSync, statSync } from 'node:fs';
++import { extname, join, normalize } from 'node:path';
++import { fileURLToPath } from 'node:url';
++
++const __filename = fileURLToPath(import.meta.url);
++const rootDir = normalize(join(__filename, '..', '..', 'frontend'));
++const port = Number(process.env.PORT || 3001);
++
++const mimeTypes = {
++  '.html': 'text/html; charset=utf-8',
++  '.css': 'text/css; charset=utf-8',
++  '.js': 'application/javascript; charset=utf-8',
++  '.json': 'application/json; charset=utf-8',
++  '.png': 'image/png',
++  '.jpg': 'image/jpeg',
++  '.jpeg': 'image/jpeg',
++  '.svg': 'image/svg+xml',
++  '.ico': 'image/x-icon'
++};
++
++function resolveFilePath(requestPath) {
++  const safePath = normalize(decodeURIComponent(requestPath)).replace(/^([.][.][/\\])+/, '');
++  let resolved = join(rootDir, safePath === '/' ? 'index.html' : safePath);
++
++  if (existsSync(resolved) && statSync(resolved).isDirectory()) {
++    resolved = join(resolved, 'index.html');
++  }
++
++  if (!existsSync(resolved)) {
++    return null;
++  }
++
++  return resolved;
++}
++
++createServer((req, res) => {
++  const filePath = resolveFilePath(req.url || '/');
++
++  if (!filePath) {
++    res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
++    res.end('Not found');
++    return;
++  }
++
++  const ext = extname(filePath).toLowerCase();
++  const contentType = mimeTypes[ext] || 'application/octet-stream';
++  res.writeHead(200, { 'Content-Type': contentType });
++  createReadStream(filePath).pipe(res);
++}).listen(port, () => {
++  console.log(`NovaBoard frontend running at http://localhost:${port}`);
++});
 diff --git a/frontend/package.json b/frontend/package.json
 new file mode 100644
-index 0000000000000000000000000000000000000000..c267471f52c9b02849b21238fdc27dde9146abe2
+index 0000000000000000000000000000000000000000..1d3d0e4e6bbb7680db2f12e569b6bfee954f17a4
 --- /dev/null
 +++ b/frontend/package.json
-@@ -0,0 +1,13 @@
+@@ -0,0 +1,11 @@
 +{
 +  "name": "novaboard-frontend",
 +  "version": "1.0.0",
 +  "private": true,
++  "type": "module",
 +  "scripts": {
-+    "dev": "serve . -l 3001",
++    "dev": "node dev-server.js",
 +    "build": "echo 'Static frontend: no build step required'",
-+    "start": "serve . -l 3001"
-+  },
-+  "dependencies": {
-+    "serve": "^14.2.4"
++    "start": "node dev-server.js"
 +  }
 +}
 diff --git a/frontend/vercel.json b/frontend/vercel.json
