@@ -30,6 +30,9 @@ function getApiBaseUrl() {
   const fromWindow = globalThis?.NOVABOARD_API_BASE_URL?.trim?.();
   if (fromWindow) return fromWindow.replace(/\/$/, '');
 
+  const fromStorage = window.localStorage.getItem('NOVABOARD_API_BASE_URL')?.trim();
+  if (fromStorage) return fromStorage.replace(/\/$/, '');
+
   if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
     return 'http://localhost:3000';
   }
@@ -42,13 +45,32 @@ function apiUrl(path) {
   return `${base}${path}`;
 }
 
+function ensureApiBaseConfigured() {
+  const existing = getApiBaseUrl();
+  if (existing) return existing;
+
+  const value = window.prompt('Enter your backend API base URL (example: https://your-api.onrender.com)');
+  if (!value) return '';
+
+  const normalized = value.trim().replace(/\/$/, '');
+  if (!/^https?:\/\//i.test(normalized)) {
+    notify('Invalid API URL. Please include http:// or https://.');
+    return '';
+  }
+
+  window.localStorage.setItem('NOVABOARD_API_BASE_URL', normalized);
+  return normalized;
+}
+
 export async function initStravaModule() {
   const connectBtn = document.getElementById('strava-connect-btn');
   const refreshBtn = document.getElementById('strava-refresh-btn');
   const disconnectBtn = document.getElementById('strava-disconnect-btn');
 
   connectBtn?.addEventListener('click', () => {
-    window.location.href = apiUrl('/auth/strava');
+    const base = ensureApiBaseConfigured();
+    if (!base) return;
+    window.location.href = `${base}/auth/strava`;
   });
 
   refreshBtn?.addEventListener('click', async () => {
@@ -75,6 +97,16 @@ export async function loadStravaActivities() {
   if (!statusEl || !listEl) return;
 
   try {
+    const base = getApiBaseUrl();
+    if (!base) {
+      statusEl.textContent = 'Set your backend API URL to enable Strava.';
+      listEl.innerHTML = '<div class="empty">Click "Authorize Strava" and provide your Render API URL when prompted.</div>';
+      connectBtn.hidden = false;
+      refreshBtn.hidden = true;
+      disconnectBtn.hidden = true;
+      return;
+    }
+
     const status = await fetchJson(apiUrl('/api/strava/status'));
 
     if (!status.connected) {
