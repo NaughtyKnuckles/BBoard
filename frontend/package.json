@@ -1,0 +1,11 @@
+{
+  "name": "novaboard-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node dev-server.js",
+    "build": "echo 'Static frontend: no build step required'",
+    "start": "node dev-server.js"
+  }
+}
