@@ -179,7 +179,14 @@ app.get('/auth/strava/callback', requireStrava, async (req, res) => {
     const tokenData = await exchangeCodeForToken(code);
     req.session.stravaToken = tokenData;
     req.session.stravaAthlete = tokenData.athlete;
-    return res.redirect(`${FRONTEND_URL || '/'}?strava=connected`);
+    return req.session.save((saveError) => {
+      if (saveError) {
+        console.error('Failed to persist Strava session:', saveError.message);
+        return res.status(500).send('Failed to persist Strava session.');
+      }
+
+      return res.redirect(`${FRONTEND_URL || '/'}?strava=connected`);
+    });
   } catch (exchangeError) {
     console.error(exchangeError.message);
     return res.status(500).send('Failed to authenticate with Strava.');
@@ -229,9 +236,13 @@ app.get('/api/strava/activities', requireStrava, ensureValidAccessToken, async (
 });
 
 app.post('/auth/strava/logout', (req, res) => {
-  req.session.stravaToken = null;
-  req.session.stravaAthlete = null;
-  res.json({ ok: true });
+  req.session.destroy((error) => {
+    if (error) {
+      console.error('Failed to destroy session:', error.message);
+      return res.status(500).json({ error: 'Failed to logout from Strava session.' });
+    }
+    return res.json({ ok: true });
+  });
 });
 
 app.listen(PORT, () => {
