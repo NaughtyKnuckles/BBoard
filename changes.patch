@@ -46,11 +46,13 @@ index 03c5ccfcbc4e459a5088f853908aec5bf8dd2b8f..1f361d37b45178c405f8746c44bc5935
 +.idea/
 diff --git a/DEPLOYMENT.md b/DEPLOYMENT.md
 new file mode 100644
-index 0000000000000000000000000000000000000000..540d77ccc518632d58fc4d5e2256963664320501
+index 0000000000000000000000000000000000000000..6b7093ecc89fbec34ddc88ab0e7bc696a01a1ee8
 --- /dev/null
 +++ b/DEPLOYMENT.md
-@@ -0,0 +1,112 @@
+@@ -0,0 +1,130 @@
 +# Deployment-Ready Monorepo Layout (Vercel + Render)
++
++> This repo currently uses a **static frontend** (HTML/CSS/JS). Vercel handles this natively.
 +
 +This project is organized so frontend and backend deploy independently from the same repository.
 +
@@ -58,7 +60,7 @@ index 0000000000000000000000000000000000000000..540d77ccc518632d58fc4d5e22569636
 +
 +```txt
 +.
-+├── frontend/                # Next.js app deployed to Vercel
++├── frontend/                # Static UI deployed to Vercel
 +│   ├── package.json
 +│   ├── vercel.json
 +│   └── .env.example
@@ -75,19 +77,33 @@ index 0000000000000000000000000000000000000000..540d77ccc518632d58fc4d5e22569636
 +
 +## Local development
 +
-+### Option A: run both services together
++### Option A (recommended): run both services together
 +
 +```bash
 +npm install
 +npm run dev
 +```
 +
-+### Option B: run separately
++- Backend API: `http://localhost:3000`
++- Frontend UI: `http://localhost:3001/frontend/`
 +
++### Option B: run separately in two terminals
++
++Terminal 1:
 +```bash
 +npm run dev:backend
++```
++
++Terminal 2:
++```bash
 +npm run dev:frontend
 +```
++
++If you only want a quick frontend preview without npm dependencies:
++```bash
++python3 -m http.server 3001
++```
++Then open `http://localhost:3001/frontend/`.
 +
 +## Environment variable strategy
 +
@@ -97,7 +113,7 @@ index 0000000000000000000000000000000000000000..540d77ccc518632d58fc4d5e22569636
 +
 +- `NEXT_PUBLIC_API_BASE_URL=https://<render-service>.onrender.com`
 +
-+Only variables prefixed with `NEXT_PUBLIC_` are available in browser-side code.
++For this static app, use this value in your frontend config/constants where API calls are made.
 +
 +### Backend (Render)
 +
@@ -126,10 +142,12 @@ index 0000000000000000000000000000000000000000..540d77ccc518632d58fc4d5e22569636
 +1. Push repository to GitHub.
 +2. In Vercel, **Add New Project** and import the repo.
 +3. Set **Root Directory** to `frontend`.
-+4. Build settings:
++4. Build settings (static project):
++   - Framework preset: `Other`
++   - Root Directory: `frontend`
 +   - Install Command: `npm install`
 +   - Build Command: `npm run build`
-+   - Output: auto-detected for Next.js (`.next`).
++   - Output Directory: `.`
 +5. Add environment variables (at least `NEXT_PUBLIC_API_BASE_URL`).
 +6. Deploy.
 +7. Add custom domain in Vercel project settings if needed.
@@ -471,38 +489,41 @@ index 0000000000000000000000000000000000000000..cbd1bbaa74bb09dbb87935592854c027
 +NEXT_PUBLIC_API_BASE_URL=http://localhost:3000
 diff --git a/frontend/package.json b/frontend/package.json
 new file mode 100644
-index 0000000000000000000000000000000000000000..1f6407ceb35c84b7c85329c407b05b54a05f7829
+index 0000000000000000000000000000000000000000..c267471f52c9b02849b21238fdc27dde9146abe2
 --- /dev/null
 +++ b/frontend/package.json
-@@ -0,0 +1,16 @@
+@@ -0,0 +1,13 @@
 +{
 +  "name": "novaboard-frontend",
 +  "version": "1.0.0",
 +  "private": true,
 +  "scripts": {
-+    "dev": "next dev",
-+    "build": "next build",
-+    "start": "next start",
-+    "lint": "next lint"
++    "dev": "serve . -l 3001",
++    "build": "echo 'Static frontend: no build step required'",
++    "start": "serve . -l 3001"
 +  },
 +  "dependencies": {
-+    "next": "14.2.33",
-+    "react": "18.3.1",
-+    "react-dom": "18.3.1"
++    "serve": "^14.2.4"
 +  }
 +}
 diff --git a/frontend/vercel.json b/frontend/vercel.json
 new file mode 100644
-index 0000000000000000000000000000000000000000..660e8e1930a74cf5f3d29c5a37593d194e214031
+index 0000000000000000000000000000000000000000..8a36336c8d1908a53a953cf376c368d1f01f1c79
 --- /dev/null
 +++ b/frontend/vercel.json
-@@ -0,0 +1,7 @@
+@@ -0,0 +1,13 @@
 +{
 +  "$schema": "https://openapi.vercel.sh/vercel.json",
-+  "framework": "nextjs",
-+  "installCommand": "npm install",
-+  "buildCommand": "npm run build",
-+  "outputDirectory": ".next"
++  "cleanUrls": true,
++  "trailingSlash": false,
++  "headers": [
++    {
++      "source": "/(.*)",
++      "headers": [
++        { "key": "X-Content-Type-Options", "value": "nosniff" }
++      ]
++    }
++  ]
 +}
 diff --git a/package.json b/package.json
 new file mode 100644
