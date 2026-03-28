@@ -14,10 +14,32 @@ function fmtDate(dateIso) {
 }
 
 async function fetchJson(url, options) {
-  const res = await fetch(url, options);
+  const res = await fetch(url, {
+    credentials: 'include',
+    ...options
+  });
   const data = await res.json();
   if (!res.ok) throw new Error(data?.error || 'Request failed');
   return data;
+}
+
+function getApiBaseUrl() {
+  const fromMeta = document.querySelector('meta[name="novaboard-api-base-url"]')?.getAttribute('content')?.trim();
+  if (fromMeta) return fromMeta.replace(/\/$/, '');
+
+  const fromWindow = globalThis?.NOVABOARD_API_BASE_URL?.trim?.();
+  if (fromWindow) return fromWindow.replace(/\/$/, '');
+
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    return 'http://localhost:3000';
+  }
+
+  return '';
+}
+
+function apiUrl(path) {
+  const base = getApiBaseUrl();
+  return `${base}${path}`;
 }
 
 export async function initStravaModule() {
@@ -26,7 +48,7 @@ export async function initStravaModule() {
   const disconnectBtn = document.getElementById('strava-disconnect-btn');
 
   connectBtn?.addEventListener('click', () => {
-    window.location.href = '/auth/strava';
+    window.location.href = apiUrl('/auth/strava');
   });
 
   refreshBtn?.addEventListener('click', async () => {
@@ -34,7 +56,7 @@ export async function initStravaModule() {
   });
 
   disconnectBtn?.addEventListener('click', async () => {
-    await fetchJson('/auth/strava/logout', { method: 'POST' });
+    await fetchJson(apiUrl('/auth/strava/logout'), { method: 'POST' });
     notify('Disconnected from Strava.');
     await loadStravaActivities();
   });
@@ -53,7 +75,7 @@ export async function loadStravaActivities() {
   if (!statusEl || !listEl) return;
 
   try {
-    const status = await fetchJson('/api/strava/status');
+    const status = await fetchJson(apiUrl('/api/strava/status'));
 
     if (!status.connected) {
       statusEl.textContent = 'Not connected. Connect your Strava account to load activities.';
@@ -75,7 +97,7 @@ export async function loadStravaActivities() {
 
     statusEl.textContent = 'Connected. Loading latest activities...';
 
-    const data = await fetchJson('/api/strava/activities?per_page=12');
+    const data = await fetchJson(apiUrl('/api/strava/activities?per_page=12'));
 
     if (!data.activities?.length) {
       listEl.innerHTML = '<div class="empty">No recent activities found.</div>';
