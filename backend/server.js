@@ -17,9 +17,16 @@ const {
   CORS_ALLOWED_ORIGINS = ''
 } = process.env;
 
-if (!SESSION_SECRET || !STRAVA_CLIENT_ID || !STRAVA_CLIENT_SECRET || !STRAVA_REDIRECT_URI) {
-  console.error('Missing required environment variables. Check .env configuration.');
+const sessionSecret = SESSION_SECRET || (NODE_ENV !== 'production' ? 'dev-session-secret-change-me' : '');
+const stravaEnabled = Boolean(STRAVA_CLIENT_ID && STRAVA_CLIENT_SECRET && STRAVA_REDIRECT_URI);
+
+if (!sessionSecret) {
+  console.error('Missing SESSION_SECRET in production. Check backend/.env configuration.');
   process.exit(1);
+}
+
+if (!stravaEnabled) {
+  console.warn('Strava OAuth is disabled. Set STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET, and STRAVA_REDIRECT_URI to enable it.');
 }
 
 const allowedOrigins = [
@@ -51,7 +58,7 @@ app.use((req, res, next) => {
 app.use(
   session({
     name: 'novaboard.sid',
-    secret: SESSION_SECRET,
+    secret: sessionSecret,
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -64,6 +71,7 @@ app.use(
 );
 
 app.get('/health', (_req, res) => {
+  res.status(200).json({ ok: true, service: 'novaboard-api', stravaEnabled });
   res.status(200).json({ ok: true, service: 'novaboard-api' });
 });
 
@@ -118,6 +126,15 @@ async function refreshAccessToken(refreshToken) {
   return response.json();
 }
 
+function requireStrava(req, res, next) {
+  if (!stravaEnabled) {
+    return res.status(503).json({
+      error: 'Strava integration is disabled in this environment.'
+    });
+  }
+  return next();
+}
+
 async function ensureValidAccessToken(req, res, next) {
   const token = req.session?.stravaToken;
   if (!token) {
@@ -138,11 +155,11 @@ async function ensureValidAccessToken(req, res, next) {
   return next();
 }
 
-app.get('/auth/strava', (req, res) => {
+app.get('/auth/strava', requireStrava, (req, res) => {
   res.redirect(getStravaAuthUrl());
 });
 
-app.get('/auth/strava/callback', async (req, res) => {
+app.get('/auth/strava/callback', requireStrava, async (req, res) => {
   const { code, error } = req.query;
 
   if (error) {
@@ -166,10 +183,10 @@ app.get('/auth/strava/callback', async (req, res) => {
 
 app.get('/api/strava/status', (req, res) => {
   const connected = !!req.session?.stravaToken;
-  res.json({ connected, athlete: req.session?.stravaAthlete || null });
+  res.json({ connected, enabled: stravaEnabled, athlete: req.session?.stravaAthlete || null });
 });
 
-app.get('/api/strava/activities', ensureValidAccessToken, async (req, res) => {
+app.get('/api/strava/activities', requireStrava, ensureValidAccessToken, async (req, res) => {
   const perPage = Number(req.query.per_page || 10);
   const token = req.session.stravaToken;
 

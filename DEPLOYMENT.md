@@ -1,11 +1,14 @@
 # Deployment-Ready Monorepo Layout (Vercel + Render)
 
+> This repo currently uses a **static frontend** (HTML/CSS/JS). Vercel handles this natively.
+
 This project is organized so frontend and backend deploy independently from the same repository.
 
 ## Recommended structure
 
 ```txt
 .
+├── frontend/                # Static UI deployed to Vercel
 ├── frontend/                # Next.js app deployed to Vercel
 │   ├── package.json
 │   ├── vercel.json
@@ -23,12 +26,38 @@ This project is organized so frontend and backend deploy independently from the 
 
 ## Local development
 
+### First-time setup
+
+```bash
+cp backend/.env.example backend/.env
+```
+
+`backend/.env` is optional for local startup now (the API will boot with a development fallback secret), but creating it is recommended.
+
+### Option A (recommended): run both services together
 ### Option A: run both services together
 
 ```bash
 npm install
 npm run dev
 ```
+
+- Backend API: `http://localhost:3000`
+- Frontend UI: `http://localhost:3001/frontend/`
+
+### Option B: run separately in two terminals
+
+Terminal 1:
+```bash
+npm run dev:backend
+```
+
+Terminal 2:
+```bash
+npm run dev:frontend
+```
+
+Frontend dev now uses a Node static server (`frontend/dev-server.js`), so no framework-specific setup is needed.
 
 ### Option B: run separately
 
@@ -45,6 +74,7 @@ Set in Vercel project settings:
 
 - `NEXT_PUBLIC_API_BASE_URL=https://<render-service>.onrender.com`
 
+For this static app, use this value in your frontend config/constants where API calls are made.
 Only variables prefixed with `NEXT_PUBLIC_` are available in browser-side code.
 
 ### Backend (Render)
@@ -74,6 +104,12 @@ Set in Render service settings:
 1. Push repository to GitHub.
 2. In Vercel, **Add New Project** and import the repo.
 3. Set **Root Directory** to `frontend`.
+4. Build settings (static project):
+   - Framework preset: `Other`
+   - Root Directory: `frontend`
+   - Install Command: `npm install`
+   - Build Command: `npm run build`
+   - Output Directory: `.`
 4. Build settings:
    - Install Command: `npm install`
    - Build Command: `npm run build`
