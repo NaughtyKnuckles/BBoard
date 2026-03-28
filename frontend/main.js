@@ -5,6 +5,7 @@ import { getGoalStats, initGoalsModule, renderGoals } from './modules/goals.js';
 import { getTodoStats, initTodoModule, renderTodos } from './modules/todo.js';
 import { initScheduleModule, renderSchedule } from './modules/schedule.js';
 import { getHabitStats, getTodayNutritionStats, getWeeklyCalories, initFitnessModule, renderFitness } from './modules/fitness.js';
+import { initStravaModule } from './modules/strava.js';
 
 const state = loadState();
 
@@ -147,6 +148,7 @@ function init() {
   initGoalsModule({ state, save, notify, refreshAll });
   initScheduleModule({ state, save, notify, refreshAll });
   initFitnessModule({ state, save, notify, refreshAll });
+  initStravaModule();
 
   refreshAll();
 }
