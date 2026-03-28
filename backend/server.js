@@ -1,14 +1,10 @@
 import express from 'express';
 import session from 'express-session';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
 const app = express();
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const {
   PORT = 3000,
@@ -16,7 +12,9 @@ const {
   SESSION_SECRET,
   STRAVA_CLIENT_ID,
   STRAVA_CLIENT_SECRET,
-  STRAVA_REDIRECT_URI
+  STRAVA_REDIRECT_URI,
+  FRONTEND_URL,
+  CORS_ALLOWED_ORIGINS = ''
 } = process.env;
 
 if (!SESSION_SECRET || !STRAVA_CLIENT_ID || !STRAVA_CLIENT_SECRET || !STRAVA_REDIRECT_URI) {
@@ -24,7 +22,32 @@ if (!SESSION_SECRET || !STRAVA_CLIENT_ID || !STRAVA_CLIENT_SECRET || !STRAVA_RED
   process.exit(1);
 }
 
+const allowedOrigins = [
+  FRONTEND_URL,
+  ...CORS_ALLOWED_ORIGINS.split(',').map((origin) => origin.trim())
+]
+  .filter(Boolean);
+
+app.set('trust proxy', 1);
 app.use(express.json());
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+
+  if (origin && (allowedOrigins.length === 0 || allowedOrigins.includes(origin))) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Vary', 'Origin');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+  }
+
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204);
+  }
+
+  return next();
+});
 app.use(
   session({
     name: 'novaboard.sid',
@@ -34,11 +57,15 @@ app.use(
     cookie: {
       httpOnly: true,
       secure: NODE_ENV === 'production',
-      sameSite: 'lax',
+      sameSite: NODE_ENV === 'production' ? 'none' : 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000
     }
   })
 );
+
+app.get('/health', (_req, res) => {
+  res.status(200).json({ ok: true, service: 'novaboard-api' });
+});
 
 function getStravaAuthUrl() {
   const params = new URLSearchParams({
@@ -119,7 +146,7 @@ app.get('/auth/strava/callback', async (req, res) => {
   const { code, error } = req.query;
 
   if (error) {
-    return res.redirect('/?strava=denied');
+    return res.redirect(`${FRONTEND_URL || '/'}?strava=denied`);
   }
 
   if (!code) {
@@ -130,7 +157,7 @@ app.get('/auth/strava/callback', async (req, res) => {
     const tokenData = await exchangeCodeForToken(code);
     req.session.stravaToken = tokenData;
     req.session.stravaAthlete = tokenData.athlete;
-    return res.redirect('/?strava=connected');
+    return res.redirect(`${FRONTEND_URL || '/'}?strava=connected`);
   } catch (exchangeError) {
     console.error(exchangeError.message);
     return res.status(500).send('Failed to authenticate with Strava.');
@@ -159,12 +186,12 @@ app.get('/api/strava/activities', ensureValidAccessToken, async (req, res) => {
     }
 
     const activities = await response.json();
-    const normalized = activities.map((a) => ({
-      id: a.id,
-      name: a.name,
-      type: a.type,
-      start_date_local: a.start_date_local,
-      distance_meters: a.distance
+    const normalized = activities.map((activity) => ({
+      id: activity.id,
+      name: activity.name,
+      type: activity.type,
+      start_date_local: activity.start_date_local,
+      distance_meters: activity.distance
     }));
 
     return res.json({ activities: normalized });
@@ -180,8 +207,6 @@ app.post('/auth/strava/logout', (req, res) => {
   res.json({ ok: true });
 });
 
-app.use(express.static(path.join(__dirname)));
-
 app.listen(PORT, () => {
-  console.log(`NovaBoard server running on http://localhost:${PORT}`);
+  console.log(`NovaBoard API running on http://localhost:${PORT}`);
 });
