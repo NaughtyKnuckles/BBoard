@@ -1,0 +1,187 @@
+import express from 'express';
+import session from 'express-session';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+const app = express();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const {
+  PORT = 3000,
+  NODE_ENV = 'development',
+  SESSION_SECRET,
+  STRAVA_CLIENT_ID,
+  STRAVA_CLIENT_SECRET,
+  STRAVA_REDIRECT_URI
+} = process.env;
+
+if (!SESSION_SECRET || !STRAVA_CLIENT_ID || !STRAVA_CLIENT_SECRET || !STRAVA_REDIRECT_URI) {
+  console.error('Missing required environment variables. Check .env configuration.');
+  process.exit(1);
+}
+
+app.use(express.json());
+app.use(
+  session({
+    name: 'novaboard.sid',
+    secret: SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      secure: NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    }
+  })
+);
+
+function getStravaAuthUrl() {
+  const params = new URLSearchParams({
+    client_id: STRAVA_CLIENT_ID,
+    redirect_uri: STRAVA_REDIRECT_URI,
+    response_type: 'code',
+    approval_prompt: 'auto',
+    scope: 'read,activity:read_all'
+  });
+  return `https://www.strava.com/oauth/authorize?${params.toString()}`;
+}
+
+async function exchangeCodeForToken(code) {
+  const response = await fetch('https://www.strava.com/oauth/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      client_id: STRAVA_CLIENT_ID,
+      client_secret: STRAVA_CLIENT_SECRET,
+      code,
+      grant_type: 'authorization_code'
+    })
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Token exchange failed: ${text}`);
+  }
+
+  return response.json();
+}
+
+async function refreshAccessToken(refreshToken) {
+  const response = await fetch('https://www.strava.com/oauth/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      client_id: STRAVA_CLIENT_ID,
+      client_secret: STRAVA_CLIENT_SECRET,
+      grant_type: 'refresh_token',
+      refresh_token: refreshToken
+    })
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Token refresh failed: ${text}`);
+  }
+
+  return response.json();
+}
+
+async function ensureValidAccessToken(req, res, next) {
+  const token = req.session?.stravaToken;
+  if (!token) {
+    return res.status(401).json({ error: 'Not authenticated with Strava.' });
+  }
+
+  const now = Math.floor(Date.now() / 1000);
+  if (token.expires_at <= now + 60) {
+    try {
+      const refreshed = await refreshAccessToken(token.refresh_token);
+      req.session.stravaToken = refreshed;
+    } catch (error) {
+      console.error(error.message);
+      return res.status(401).json({ error: 'Unable to refresh Strava token. Reconnect account.' });
+    }
+  }
+
+  return next();
+}
+
+app.get('/auth/strava', (req, res) => {
+  res.redirect(getStravaAuthUrl());
+});
+
+app.get('/auth/strava/callback', async (req, res) => {
+  const { code, error } = req.query;
+
+  if (error) {
+    return res.redirect('/?strava=denied');
+  }
+
+  if (!code) {
+    return res.status(400).send('Missing authorization code.');
+  }
+
+  try {
+    const tokenData = await exchangeCodeForToken(code);
+    req.session.stravaToken = tokenData;
+    req.session.stravaAthlete = tokenData.athlete;
+    return res.redirect('/?strava=connected');
+  } catch (exchangeError) {
+    console.error(exchangeError.message);
+    return res.status(500).send('Failed to authenticate with Strava.');
+  }
+});
+
+app.get('/api/strava/status', (req, res) => {
+  const connected = !!req.session?.stravaToken;
+  res.json({ connected, athlete: req.session?.stravaAthlete || null });
+});
+
+app.get('/api/strava/activities', ensureValidAccessToken, async (req, res) => {
+  const perPage = Number(req.query.per_page || 10);
+  const token = req.session.stravaToken;
+
+  try {
+    const response = await fetch(`https://www.strava.com/api/v3/athlete/activities?per_page=${perPage}`, {
+      headers: {
+        Authorization: `Bearer ${token.access_token}`
+      }
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`Failed to load activities: ${text}`);
+    }
+
+    const activities = await response.json();
+    const normalized = activities.map((a) => ({
+      id: a.id,
+      name: a.name,
+      type: a.type,
+      start_date_local: a.start_date_local,
+      distance_meters: a.distance
+    }));
+
+    return res.json({ activities: normalized });
+  } catch (activityError) {
+    console.error(activityError.message);
+    return res.status(500).json({ error: 'Could not fetch Strava activities.' });
+  }
+});
+
+app.post('/auth/strava/logout', (req, res) => {
+  req.session.stravaToken = null;
+  req.session.stravaAthlete = null;
+  res.json({ ok: true });
+});
+
+app.use(express.static(path.join(__dirname)));
+
+app.listen(PORT, () => {
+  console.log(`NovaBoard server running on http://localhost:${PORT}`);
+});
