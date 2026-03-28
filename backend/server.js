@@ -1,6 +1,8 @@
 import express from 'express';
 import session from 'express-session';
 import dotenv from 'dotenv';
+import cors from 'cors';
+import fetch from 'node-fetch'; // ensure node-fetch is installed if using node v18 or earlier
 
 dotenv.config();
 
@@ -20,7 +22,7 @@ const {
 const sessionSecret = SESSION_SECRET || (NODE_ENV !== 'production' ? 'dev-session-secret-change-me' : '');
 const stravaEnabled = Boolean(STRAVA_CLIENT_ID && STRAVA_CLIENT_SECRET);
 
-if (!sessionSecret) {
+if (!sessionSecret && NODE_ENV === 'production') {
   console.error('Missing SESSION_SECRET in production. Check backend/.env configuration.');
   process.exit(1);
 }
@@ -29,37 +31,32 @@ if (!stravaEnabled) {
   console.warn('Strava OAuth is disabled. Set STRAVA_CLIENT_ID and STRAVA_CLIENT_SECRET to enable it.');
 }
 
-function normalizeOrigin(origin = '') {
-  return origin.trim().replace(/\/$/, '');
-}
-
+// ----------- CORS SETUP -----------
 const allowedOrigins = [
   FRONTEND_URL,
-  ...CORS_ALLOWED_ORIGINS.split(',').map((origin) => origin.trim())
-]
-  .map(normalizeOrigin)
-  .filter(Boolean);
+  ...CORS_ALLOWED_ORIGINS.split(',').map((o) => o.trim())
+].filter(Boolean);
 
-app.set('trust proxy', 1);
+app.use(cors({
+  origin: function(origin, callback) {
+    if (!origin) return callback(null, true); // allow mobile apps or curl requests without origin
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS not allowed for this origin'));
+    }
+  },
+  credentials: true, // allow cookies and session
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
+// ----------------------------------
+
+// Express JSON parser
 app.use(express.json());
-app.use((req, res, next) => {
-  const origin = normalizeOrigin(req.headers.origin || '');
 
-  if (origin && (allowedOrigins.length === 0 || allowedOrigins.includes(origin))) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-    res.setHeader('Vary', 'Origin');
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-  }
-
-  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
-
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(204);
-  }
-
-  return next();
-});
+// Session setup
+app.set('trust proxy', 1);
 app.use(
   session({
     name: 'novaboard.sid',
@@ -75,10 +72,12 @@ app.use(
   })
 );
 
+// ----------- HEALTH CHECK -----------
 app.get('/health', (_req, res) => {
   res.status(200).json({ ok: true, service: 'novaboard-api', stravaEnabled });
 });
 
+// ----------- STRAVA OAUTH HELPERS -----------
 function getRedirectUri(req) {
   if (STRAVA_REDIRECT_URI) return STRAVA_REDIRECT_URI;
   return `${req.protocol}://${req.get('host')}/auth/strava/callback`;
@@ -165,6 +164,7 @@ async function ensureValidAccessToken(req, res, next) {
   return next();
 }
 
+// ----------- STRAVA ROUTES -----------
 app.get('/auth/strava', requireStrava, (req, res) => {
   res.redirect(getStravaAuthUrl(req));
 });
@@ -184,6 +184,7 @@ app.get('/auth/strava/callback', requireStrava, async (req, res) => {
     const tokenData = await exchangeCodeForToken(code);
     req.session.stravaToken = tokenData;
     req.session.stravaAthlete = tokenData.athlete;
+
     return req.session.save((saveError) => {
       if (saveError) {
         console.error('Failed to persist Strava session:', saveError.message);
@@ -250,6 +251,7 @@ app.post('/auth/strava/logout', (req, res) => {
   });
 });
 
+// ----------- START SERVER -----------
 app.listen(PORT, () => {
   console.log(`NovaBoard API running on http://localhost:${PORT}`);
 });
