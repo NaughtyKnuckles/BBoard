@@ -27,6 +27,7 @@
         <button class="nav-item" data-page="schedule">🗓️ <span>Schedule</span></button>
         <button class="nav-item" data-page="fitness">🥗 <span>Fitness</span></button>
         <button class="nav-item" data-page="analytics">📊 <span>Analytics</span></button>
+        <button class="nav-item" data-page="strava">🚴 <span>Strava</span></button>
       </nav>
 
       <div class="sidebar-footer">
@@ -36,7 +37,7 @@
 
     <main class="content">
       <header class="topbar glass">
-        <div>
+        <div class="greeting-area">
           <h2 id="greeting-title">Good day</h2>
           <p id="date-subtitle"></p>
         </div>
@@ -47,7 +48,8 @@
       </header>
 
       <section class="page active" id="page-home">
-        <div class="grid cols-3" id="overview-cards"></div>
+        <div class="grid cols-3" id="overview-cards">
+          </div>
         <div class="grid cols-2 mt-20">
           <article class="card glass" id="home-weekly-habits"></article>
           <article class="card glass" id="home-daily-focus"></article>
@@ -115,13 +117,13 @@
           <article class="card glass">
             <div class="section-head">
               <h3>Meal & Calories Tracker</h3>
-              <p>Daily calories + macros with API-assisted search.</p>
+              <p>Daily calories + macros.</p>
             </div>
             <form id="goal-calorie-form" class="form-inline">
-              <input id="calorie-goal-input" type="number" min="1200" placeholder="Daily calorie goal" required />
-              <button class="btn" type="submit">Set Goal</button>
+              <input id="calorie-goal-input" type="number" min="1200" placeholder="Daily goal" required />
+              <button class="btn" type="submit">Set</button>
             </form>
-            <div class="meter">
+            <div class="meter mt-14">
               <div class="meter-head">
                 <span id="calorie-meter-label">0 / 2200 kcal</span>
                 <span id="macro-summary">P 0g • C 0g • F 0g</span>
@@ -138,11 +140,11 @@
                 <option value="Dinner">Dinner</option>
                 <option value="Snacks">Snacks</option>
               </select>
-              <input id="meal-name" type="text" placeholder="Meal/food name" required />
-              <input id="meal-calories" type="number" min="0" step="1" placeholder="Calories" required />
-              <input id="meal-protein" type="number" min="0" step="0.1" placeholder="Protein (g)" required />
-              <input id="meal-carbs" type="number" min="0" step="0.1" placeholder="Carbs (g)" required />
-              <input id="meal-fat" type="number" min="0" step="0.1" placeholder="Fat (g)" required />
+              <input id="meal-name" type="text" placeholder="Food name" required />
+              <input id="meal-calories" type="number" placeholder="kcal" required />
+              <input id="meal-protein" type="number" step="0.1" placeholder="P (g)" required />
+              <input id="meal-carbs" type="number" step="0.1" placeholder="C (g)" required />
+              <input id="meal-fat" type="number" step="0.1" placeholder="F (g)" required />
               <button class="btn" type="submit">Add Meal</button>
             </form>
             <div id="meals-list" class="stack-list mt-16"></div>
@@ -151,21 +153,20 @@
           <article class="card glass">
             <div class="section-head">
               <h3>OpenFoodFacts Lookup</h3>
-              <p>Search by product name or barcode, then auto-fill macros.</p>
+              <p>Search by product or barcode.</p>
             </div>
             <form id="food-search-form" class="form-inline">
-              <input id="food-search-input" type="text" placeholder="Search food by name" />
+              <input id="food-search-input" type="text" placeholder="Search product..." />
               <button class="btn" type="submit">Search</button>
             </form>
             <form id="barcode-form" class="form-inline mt-10">
               <input id="barcode-input" type="text" placeholder="Barcode" />
-              <button class="btn secondary" type="submit">Lookup Barcode</button>
+              <button class="btn secondary" type="submit">Lookup</button>
             </form>
             <div id="food-results" class="stack-list mt-14"></div>
 
-            <div class="section-head mt-20">
-              <h3>Habit / Streak System</h3>
-              <p>Build momentum daily.</p>
+            <div class="section-head mt-24">
+              <h3>Habit Streaks</h3>
             </div>
             <div class="habit-grid">
               <button class="habit-btn" data-habit="workout">💪 Workout Done</button>
@@ -181,20 +182,30 @@
           <article class="card glass">
             <div class="section-head">
               <h3>Weekly Calories</h3>
-              <p>Last 7 days calorie intake trend.</p>
+              <p>7-day intake trend.</p>
             </div>
             <div id="calorie-chart" class="bar-chart"></div>
           </article>
-
           <article class="card glass">
             <div class="section-head">
-              <h3>Weekly Performance</h3>
-              <p>Tasks done and habit streak trajectory.</p>
+              <h3>Productivity Trend</h3>
+              <p>Task completion vs. Goal progress.</p>
             </div>
             <div id="productivity-chart" class="bar-chart"></div>
           </article>
         </div>
       </section>
+
+      <section class="page" id="page-strava">
+        <div class="card glass">
+            <div class="section-head">
+                <h3>Strava Integration</h3>
+                <p>Connect your account to sync cycling and running data.</p>
+            </div>
+            <button class="btn" id="connect-strava">Authorize Strava</button>
+        </div>
+      </section>
+
     </main>
   </div>
 
