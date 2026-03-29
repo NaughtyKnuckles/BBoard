@@ -5,6 +5,7 @@ import ConnectionCard from '../components/ConnectionCard.jsx';
 import StatsGrid from '../components/StatsGrid.jsx';
 import ActivitiesTable from '../components/ActivitiesTable.jsx';
 import AnalyticsPanel from '../components/AnalyticsPanel.jsx';
+import MyPlanPanel from '../components/MyPlanPanel.jsx';
 import { apiFetch, captureAuthTokenFromUrl, clearAuthToken, redirectToStravaAuth } from '../lib/api.js';
 
 const initialStatus = {
@@ -25,6 +26,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [lastSyncedAt, setLastSyncedAt] = useState(null);
+  const [activeTab, setActiveTab] = useState('overview');
 
   const loadDashboard = async () => {
     setLoading(true);
@@ -171,6 +173,22 @@ export default function DashboardPage() {
           <p className="mt-2 text-sm text-slate-500">A unified view of your Strava performance and recent activity trends.</p>
         </section>
 
+
+        <div className="mb-6 flex flex-wrap gap-2">
+          {[
+            { id: 'overview', label: 'Overview' },
+            { id: 'my-plan', label: 'My Plan' }
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`rounded-xl px-4 py-2 text-sm font-medium transition ${activeTab === tab.id ? 'bg-slate-900 text-white' : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50'}`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
         {error ? (
           <div className="mb-4 flex items-center justify-between gap-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
             <span className="inline-flex items-center gap-2"><AlertTriangle className="h-4 w-4" /> {error}</span>
@@ -178,24 +196,28 @@ export default function DashboardPage() {
           </div>
         ) : null}
 
-        <div className="space-y-6 fade-in">
-          <ConnectionCard
-            status={status}
-            loading={loading}
-            onConnect={connect}
-            onRefresh={refresh}
-            onDisconnect={disconnect}
-            lastSyncedAt={lastSyncedAt}
-          />
-          <StatsGrid stats={stats} loading={loading} />
-          <AnalyticsPanel
-            weeklyTrend={weeklyTrend}
-            monthlyDistanceKm={stats.monthlyDistance}
-            activityBreakdown={activityBreakdown}
-            loading={loading}
-          />
-          <ActivitiesTable activities={activities} loading={loading} />
-        </div>
+        {activeTab === 'overview' ? (
+          <div className="space-y-6 fade-in">
+            <ConnectionCard
+              status={status}
+              loading={loading}
+              onConnect={connect}
+              onRefresh={refresh}
+              onDisconnect={disconnect}
+              lastSyncedAt={lastSyncedAt}
+            />
+            <StatsGrid stats={stats} loading={loading} />
+            <AnalyticsPanel
+              weeklyTrend={weeklyTrend}
+              monthlyDistanceKm={stats.monthlyDistance}
+              activityBreakdown={activityBreakdown}
+              loading={loading}
+            />
+            <ActivitiesTable activities={activities} loading={loading} />
+          </div>
+        ) : (
+          <MyPlanPanel />
+        )}
       </main>
     </div>
   );
