@@ -9,8 +9,8 @@ export default function TopNav({ connected }) {
             <Activity className="h-4 w-4" />
           </div>
           <div>
-            <p className="text-sm font-semibold tracking-tight text-slate-900">NovaBoard</p>
-            <p className="text-xs text-slate-500">Performance Dashboard</p>
+            <p className="text-sm font-semibold tracking-tight text-slate-900">ByenBoard</p>
+            <p className="text-xs text-slate-500">Personalized Dashboard</p>
           </div>
         </div>
         <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600">
